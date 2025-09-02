@@ -1,12 +1,606 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>BDMA</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>BDMA – Iteración 1 · Demo estática (HTML/CSS/JS)</title>
+<style>
+  :root{
+    --bg:#0b0c10;
+    --panel:#111318;
+    --muted:#9aa3af;
+    --text:#f1f5f9;
+    --brand:#60a5fa;
+    --accent:#34d399;
+    --warn:#fbbf24;
+    --danger:#f87171;
+    --card:#0f172a;
+    --code:#0b1220;
+    --link:#93c5fd;
+    --border:#1f2937;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    font: 15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif;
+    color:var(--text);
+    background:linear-gradient(180deg, #0a0f1c, #0b0c10 25% 100%);
+  }
+  header{
+    position:sticky; top:0; z-index:5;
+    background:rgba(10,14,24,.75); backdrop-filter: blur(8px);
+    border-bottom:1px solid var(--border);
+  }
+  .wrap{max-width:1100px; margin:0 auto; padding:16px}
+  .title{
+    display:flex; gap:14px; align-items:center; flex-wrap:wrap;
+  }
+  .badge{padding:3px 8px; border:1px solid var(--border); border-radius:999px; color:var(--muted)}
+  .title h1{font-size:20px; margin:0}
+  nav{display:flex; gap:10px; margin-top:12px; flex-wrap:wrap}
+  nav button{
+    background:#0c1220; color:#dbe6ff; border:1px solid var(--border); border-radius:10px;
+    padding:8px 12px; cursor:pointer; transition:.2s;
+  }
+  nav button.active{border-color:#2b66ff; box-shadow: 0 0 0 2px rgba(43,102,255,.25) inset}
+  main{padding:24px 0}
+  section{display:none}
+  section.active{display:block; animation:fade .2s ease}
+  @keyframes fade{from{opacity:.6; transform:translateY(4px)} to{opacity:1; transform:none}}
+
+  /* Cards & tables */
+  .grid{display:grid; grid-template-columns:repeat(12,1fr); gap:14px}
+  .card{grid-column: span 12; background:linear-gradient(180deg,#0f172a,#0b1220 40% 100%);
+        border:1px solid var(--border); border-radius:16px; padding:16px}
+  .card h3{margin:0 0 8px 0; font-size:18px}
+  .muted{color:var(--muted)}
+  .kpi{display:flex; gap:12px; flex-wrap:wrap}
+  .kpi .pill{background:#0b1220; border:1px solid var(--border); border-radius:999px; padding:4px 10px; color:#cbd5e1}
+  .info{border-left:3px solid var(--brand); padding:8px 12px; background:#0b1220; color:#c7d2fe; border-radius:8px}
+
+  table{width:100%; border-collapse:collapse; background:#0b1220; border:1px solid var(--border); border-radius:12px; overflow:hidden}
+  th,td{padding:10px 12px; border-bottom:1px solid var(--border); vertical-align:top}
+  th{background:#0f172a; text-align:left; color:#cbd5e1; position:sticky; top:0}
+  tr:hover td{background:#0e1528}
+  .controls{display:flex; gap:10px; justify-content:space-between; align-items:center; margin:8px 0 14px}
+  .search{display:flex; gap:8px; align-items:center}
+  .search input{background:#0b1220; color:#e2e8f0; border:1px solid var(--border); border-radius:10px; padding:8px 10px; width:280px}
+  .btn{appearance:none; background:#0c1220; color:#e5edff; border:1px solid var(--border); border-radius:10px; padding:8px 12px; cursor:pointer}
+  .btn:hover{border-color:#2b66ff}
+  .btn.acc{border-color:#065f46; color:#d1fae5}
+  .btn.warn{border-color:#7c5800; color:#fde68a}
+  .btn.danger{border-color:#7f1d1d; color:#fecaca}
+  a{color:var(--link); text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  pre{background:var(--code); border:1px solid var(--border); color:#e2e8f0; border-radius:12px; padding:12px; overflow:auto}
+  code{font-family: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,monospace; font-size:13px}
+  .codebar{display:flex; justify-content:space-between; align-items:center; gap:8px; margin:6px 0}
+  .tag{font-size:12px; color:#a3bffa; background:#0b1220; border:1px solid var(--border); border-radius:999px; padding:2px 8px}
+
+  /* Context map */
+  #mapWrap{position:relative; background:#0b1220; border:1px solid var(--border); border-radius:16px; padding:12px; min-height:440px}
+  #mapSvg{position:absolute; inset:0; pointer-events:none}
+  .ctx{position:absolute; width:220px; min-height:68px; background:#0f172a; border:1px solid var(--border); border-radius:12px; padding:10px}
+  .ctx h4{margin:0 0 6px 0; font-size:15px; color:#e5e7eb}
+  .ctx p{margin:0; color:#a1a1aa; font-size:13px}
+  .edge{stroke:#64b5f6; stroke-width:2; marker-end:url(#arrow)}
+
+  /* Responsive */
+  @media (min-width:820px){
+    .card.span6{grid-column: span 6}
+  }
+  @media print{
+    header, nav, .controls{display:none !important}
+    body{background:white; color:black}
+    .card, table, pre{border-color:#ddd}
+  }
+</style>
 </head>
 <body>
-  <h1>¡Proximamente!</h1>
-  
+  <header>
+    <div class="wrap">
+      <div class="title">
+        <h1>BDMA – Iteración 1 · Demo estática</h1>
+        <span class="badge">HTML + CSS + JS</span>
+        <span class="badge">Publicable en GitHub Pages</span>
+      </div>
+      <nav id="tabs"></nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section id="intro" class="active">
+      <div class="grid">
+        <div class="card">
+          <h3>Propósito</h3>
+          <p class="muted">Esta demo estática resume los artefactos de la primera iteración de <strong>BDMA (Behavior‑Driven Microservice Architecture)</strong> para una plataforma de publicaciones científicas. Incluye requisitos, escenarios BDD, agrupamientos funcionales (Fase 1), comandos/eventos y entidades (Fase 2), bounded contexts e interacciones (Fase 3), contratos API contract‑first (Fase 4), y trazabilidad + ADR (Fase 5).</p>
+          <div class="kpi">
+            <span class="pill">8 bounded contexts</span>
+            <span class="pill">~25 endpoints</span>
+            <span class="pill">Escenarios clave en Gherkin</span>
+            <span class="pill">Context map interactivo (SVG)</span>
+          </div>
+        </div>
+
+        <div class="card span6">
+          <h3>Cómo usar</h3>
+          <ol class="muted">
+            <li>Navegá por las pestañas superiores.</li>
+            <li>Usá la búsqueda para filtrar tablas.</li>
+            <li>Copiá fragmentos Gherkin con el botón <em>Copiar</em>.</li>
+            <li>Usá <em>Imprimir</em> del navegador para exportar a PDF.</li>
+          </ol>
+        </div>
+        <div class="card span6">
+          <h3>Licencia y publicación</h3>
+          <p class="muted">Subí este archivo como <code>index.html</code> al repositorio <code>username.github.io</code> o activá <em>GitHub Pages</em> en la rama principal. No requiere build ni dependencias.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="requisitos"></section>
+    <section id="bdd"></section>
+    <section id="fase1"></section>
+    <section id="fase2"></section>
+    <section id="fase3"></section>
+    <section id="fase4"></section>
+    <section id="fase5"></section>
+  </main>
+
+<script>
+/* ---------- Data (curated from artefacts de la Iteración 1) ---------- */
+const requisitos = {
+  contexto: "Plataforma distribuida para gestión de publicaciones (revistas y congresos).",
+  funcionales: [
+    "Registro y autenticación de investigadores",
+    "Perfiles con afiliación, ORCID, áreas e indicadores",
+    "Envío y versionado; control de deadlines",
+    "Registro de revisores; asignación auto/manual; revisión ciega simple/doble",
+    "Historial de revisiones por artículo",
+    "Alta de venues (revistas/eventos) y reglas editoriales versionadas; roles",
+    "Métricas, reportes, exportaciones y boletines",
+    "Integración con ORCID, Scopus/Scholar y validación de DOI"
+  ]
+};
+
+const gruposF1 = [
+  {id:"G01", nombre:"Identity & Access", proposito:"Alta y autenticación; control de acceso/bloqueo", escenarios:["registro-exitoso","autenticacion-ok","autenticacion-falla","bloqueo"]},
+  {id:"G02", nombre:"Profiles", proposito:"Perfil, afiliación, áreas y métricas de impacto", escenarios:["perfil-basico","sincronizacion-metricas"]},
+  {id:"G03", nombre:"Submissions", proposito:"Ciclo de vida de envíos y versionado; deadlines", escenarios:["envio-evento","envio-revista","deadline","versionado"]},
+  {id:"G04", nombre:"Reviewing", proposito:"Revisores, conflictos, asignación e informes", escenarios:["alta-revisor","conflictos","auto-assign","manual-assign","ceguera-simple","aceptacion","declinacion","entrega","historial"]},
+  {id:"G05", nombre:"Editorial Decisioning", proposito:"Cálculo de decisión, cierre y certificados", escenarios:["decision","aceptacion-final"]},
+  {id:"G06", nombre:"Venue Management", proposito:"Revistas/eventos, reglas versionadas y roles", escenarios:["alta-revista","alta-evento","versionado-reglas","roles-editoriales"]},
+  {id:"G07", nombre:"Metrics & Reporting", proposito:"KPIs, exportaciones y boletines", escenarios:["metricas-autor","metricas-revista","export","boletin"]},
+  {id:"G08", nombre:"External Integrations", proposito:"ORCID/Scopus/Scholar y validación de DOI", escenarios:["orcid","scopus-scholar","doi"]}
+];
+
+const fase2ComEv = [
+  {ctx:"G01 Identity & Access", comandos:["RegistrarCuenta","Autenticar","RegistrarIntentoFallido","BloquearCuenta"], eventos:["CuentaActivada","SesionIniciada","AccesoDenegado","CuentaBloqueada"]},
+  {ctx:"G02 Profiles", comandos:["ActualizarPerfil","SincronizarMetricas"], eventos:["PerfilActualizado","MetricasSincronizadas"]},
+  {ctx:"G03 Submissions", comandos:["RegistrarEnvioEvento","RegistrarEnvioRevista","ValidarDeadline/IntentarRegistrarEnvio","AdjuntarVersion"], eventos:["EnvioRegistrado","EnvioRechazadoPorDeadline","VersionAdjuntada"]},
+  {ctx:"G04 Reviewing", comandos:["RegistrarRevisor","DeclararConflicto","AsignarRevisoresAutomaticamente","AsignarRevisorManual","ConfigurarCeguera","AceptarInvitacion","DeclinarInvitacion","RegistrarRevision","ConsultarHistorial"], eventos:["RevisorRegistrado","ConflictoRegistrado","RevisoresAsignados","RevisorAsignadoManual","InvitacionAceptada","InvitacionDeclinada","RevisionRegistrada"]},
+  {ctx:"G05 Editorial Decisioning", comandos:["CalcularDecisionEditorial","EmitirCertificado"], eventos:["DecisionEmitida","CertificadoEmitido","ExpedienteCerrado"]},
+  {ctx:"G06 Venue Management", comandos:["CrearRevista","CrearEvento","PublicarReglas","AsignarRolesEditoriales"], eventos:["RevistaCreada","EventoCreado","ReglasPublicadas","RolesAsignados"]},
+  {ctx:"G07 Metrics & Reporting", comandos:["GenerarMetricasAutor","GenerarMetricasRevista","ExportarDatos","EnviarBoletin"], eventos:["ReporteGenerado","ExportacionLista","BoletinEnviado"]},
+  {ctx:"G08 External Integrations", comandos:["SincronizarORCID","ImportarDesdeScopusScholar","ValidarDOI","ValidarMetadatos"], eventos:["PerfilSincronizado","PublicacionesImportadas","DOIVerificado","MetadatosValidados"]},
+];
+
+const bc = [
+  {id:"BC01", name:"Identity & Access", resp:"Gestión de identidad, autenticación y autorización"},
+  {id:"BC02", name:"Profiles", resp:"Gestión de perfil, afiliación y métricas del investigador"},
+  {id:"BC03", name:"Submissions", resp:"Registro y gestión de envíos a revistas o eventos"},
+  {id:"BC04", name:"Reviewing", resp:"Gestión de revisores, conflictos, asignaciones y revisiones"},
+  {id:"BC05", name:"Editorial Decisioning", resp:"Cálculo/registro de decisiones; cierre/ certificados"},
+  {id:"BC06", name:"Venue Management", resp:"Alta de venues; publicación de reglas y roles"},
+  {id:"BC07", name:"Metrics & Reporting", resp:"Generación de métricas, reportes y boletines"},
+  {id:"BC08", name:"External Integrations", resp:"ORCID/Scholar/Scopus; validación DOI"}
+];
+
+const interactions = [
+  {from:"BC03", to:"BC04", type:"Event Publisher / Partnership", note:"Al registrar envío"},
+  {from:"BC03", to:"BC05", type:"Event Publisher / Partnership", note:"Dispara decisión"},
+  {from:"BC04", to:"BC05", type:"Event Publisher", note:"Al cerrar revisiones"},
+  {from:"BC05", to:"BC03", type:"Event Subscriber", note:"Marca aceptado/rechazado"},
+  {from:"BC06", to:"BC03", type:"OHS + Event Publisher", note:"Reglas publicadas"},
+  {from:"BC06", to:"BC04", type:"OHS + Event Publisher", note:"Reglas publicadas"},
+  {from:"BC06", to:"BC05", type:"OHS + Event Publisher", note:"Reglas publicadas"},
+  {from:"BC08", to:"BC02", type:"ACL", note:"Sync de perfil/metricas"},
+  {from:"BC08", to:"BC03", type:"ACL", note:"Validación DOI/Metadatos"}
+];
+
+const endpoints = [
+  {g:"G01", ctx:"Identity & Access", method:"POST", path:"/auth/register", req:"email, password, orcidId?", res:"userId, estadoCuenta", codes:"201; 400; 409", escenario:"registro-exitoso"},
+  {g:"G01", ctx:"Identity & Access", method:"POST", path:"/auth/login", req:"email, password", res:"token, exp, userId", codes:"200; 401", escenario:"autenticacion-ok | autenticacion-falla"},
+  {g:"G01", ctx:"Identity & Access", method:"POST", path:"/auth/lockouts/evaluate", req:"userId", res:"locked(bool), reason?", codes:"200; 423", escenario:"bloqueo"},
+
+  {g:"G02", ctx:"Profiles", method:"PUT", path:"/profiles/{researcherId}", req:"nombre, afiliacion, areas[], orcidId?", res:"researcherId, actualizadoAt", codes:"200; 400; 404", escenario:"perfil-basico"},
+  {g:"G02", ctx:"Profiles", method:"POST", path:"/profiles/{researcherId}/metrics/sync", req:"fuentes[]", res:"hIndex, citas, fuente, fecha", codes:"200; 424", escenario:"sincronizacion-metricas"},
+
+  {g:"G03", ctx:"Submissions", method:"POST", path:"/venues/{venueId}/submissions", req:"titulo, autores[], archivos[], submittedAt", res:"submissionId, version=1, status", codes:"201; 422", escenario:"envio-evento | deadline"},
+  {g:"G03", ctx:"Submissions", method:"POST", path:"/journals/{journalId}/submissions", req:"titulo, autores[], archivos[]", res:"submissionId, version=1, status", codes:"201", escenario:"envio-revista"},
+  {g:"G03", ctx:"Submissions", method:"POST", path:"/submissions/{submissionId}/versions", req:"archivos[], notes?", res:"version++, estado", codes:"201; 409", escenario:"versionado"},
+
+  {g:"G04", ctx:"Reviewing", method:"POST", path:"/reviewers", req:"nombre, especialidades[], afiliacion", res:"reviewerId", codes:"201; 400", escenario:"alta-revisor"},
+  {g:"G04", ctx:"Reviewing", method:"POST", path:"/reviewers/{reviewerId}/conflicts", req:"submissionId, tipo, descripcion", res:"conflictId, registradoAt", codes:"201; 409", escenario:"conflictos"},
+  {g:"G04", ctx:"Reviewing", method:"POST", path:"/submissions/{submissionId}/assignments:auto", req:"nMin, ceguera", res:"assignments[], blindPolicy", codes:"201; 409", escenario:"auto-assign / ceguera-simple"},
+  {g:"G04", ctx:"Reviewing", method:"POST", path:"/submissions/{submissionId}/assignments", req:"reviewerId, ceguera?", res:"assignmentId, estado", codes:"201; 409", escenario:"manual-assign"},
+  {g:"G04", ctx:"Reviewing", method:"POST", path:"/assignments/{assignmentId}/accept", req:"—", res:"assignmentId, estado=ACEPTADO", codes:"200; 409", escenario:"aceptacion"},
+  {g:"G04", ctx:"Reviewing", method:"POST", path:"/assignments/{assignmentId}/decline", req:"motivo?", res:"assignmentId, estado=DECLINADO", codes:"200", escenario:"declinacion"},
+  {g:"G04", ctx:"Reviewing", method:"POST", path:"/submissions/{submissionId}/reviews", req:"assignmentId, recomendacion, comentarios", res:"reviewId, registradaAt", codes:"201; 403", escenario:"entrega"},
+  {g:"G04", ctx:"Reviewing", method:"GET",  path:"/submissions/{submissionId}/reviews", req:"estado?, reviewerId?", res:"listaReviews[]", codes:"200", escenario:"historial"},
+
+  {g:"G05", ctx:"Editorial Decisioning", method:"POST", path:"/submissions/{submissionId}/decision", req:"decision, notas?", res:"decisionId, quorumOk", codes:"201; 409", escenario:"decision"},
+  {g:"G05", ctx:"Editorial Decisioning", method:"POST", path:"/submissions/{submissionId}/acceptance-letter", req:"templateId?, locale?", res:"urlCarta, emitidaAt", codes:"200; 409", escenario:"aceptacion-final"},
+
+  {g:"G06", ctx:"Venue Management", method:"POST", path:"/venues/journals", req:"nombre, scope, politicasIniciales", res:"journalId", codes:"201; 409", escenario:"alta-revista"},
+  {g:"G06", ctx:"Venue Management", method:"POST", path:"/venues/conferences", req:"nombre, fechas{...}, politicasIniciales", res:"conferenceId", codes:"201; 409", escenario:"alta-evento"},
+  {g:"G06", ctx:"Venue Management", method:"POST", path:"/venues/{venueId}/rulesets", req:"version, reglas{...}, vigencia", res:"rulesetId, version", codes:"201; 409", escenario:"versionado-reglas"},
+  {g:"G06", ctx:"Venue Management", method:"POST", path:"/venues/{venueId}/roles", req:"usuarioId, rol", res:"roleId", codes:"201; 404", escenario:"roles-editoriales"},
+
+  {g:"G08", ctx:"External Integrations", method:"POST", path:"/integrations/orcid/sync", req:"researcherId, accessToken", res:"perfil{orcidId,...}, sincronizadoAt", codes:"200; 424", escenario:"orcid"},
+  {g:"G08", ctx:"External Integrations", method:"POST", path:"/integrations/scholar-scopus/sync", req:"researcherId", res:"metrics{hIndex,citas}, fuente", codes:"200; 424", escenario:"scopus-scholar"},
+  {g:"G08", ctx:"External Integrations", method:"POST", path:"/integrations/doi/validate", req:"doi, metadatos", res:"valido(bool), issues[]", codes:"200; 422", escenario:"doi"}
+];
+
+const adrLog = [
+  {
+    id:"ADR-000",
+    fecha:"2025-08-11",
+    estado:"Aceptado",
+    texto:"Adoptar la arquitectura resultante de BDMA Fases 1–4 como versión inicial (v1.0)."
+  }
+];
+
+const trazabilidad = [
+  ["registro-exitoso","BC01","RegistrarCuenta","CuentaActivada","POST /auth/register","ADR-000"],
+  ["autenticacion-ok","BC01","Autenticar","SesionIniciada","POST /auth/login","ADR-000"],
+  ["autenticacion-falla","BC01","Autenticar","AccesoDenegado","POST /auth/login","ADR-000"],
+  ["bloqueo","BC01","BloquearCuenta","CuentaBloqueada","POST /auth/lockouts/evaluate","ADR-000"],
+  ["perfil-basico","BC02","ActualizarPerfil","PerfilActualizado","PUT /profiles/{researcherId}","ADR-000"],
+  ["sincronizacion-metricas","BC02","SincronizarMetricas","MetricasSincronizadas","POST /profiles/{id}/metrics/sync","ADR-000"],
+  ["envio-evento","BC03","RegistrarEnvioEvento","EnvioRegistrado","POST /venues/{venueId}/submissions","ADR-000"],
+  ["envio-revista","BC03","RegistrarEnvioRevista","EnvioRegistrado","POST /journals/{journalId}/submissions","ADR-000"],
+  ["deadline","BC03","IntentarRegistrarEnvio","EnvioRechazadoPorDeadline","POST /venues/{venueId}/submissions","ADR-000"],
+  ["versionado","BC03","AdjuntarVersion","VersionAdjuntada","POST /submissions/{id}/versions","ADR-000"],
+  ["alta-revisor","BC04","RegistrarRevisor","RevisorRegistrado","POST /reviewers","ADR-000"],
+  ["conflictos","BC04","DeclararConflicto","ConflictoRegistrado","POST /reviewers/{id}/conflicts","ADR-000"],
+  ["auto-assign","BC04","AsignarRevisoresAutomaticamente","RevisoresAsignados","POST /submissions/{id}/assignments:auto","ADR-000"],
+  ["manual-assign","BC04","AsignarRevisorManual","RevisorAsignadoManual","POST /submissions/{id}/assignments","ADR-000"],
+  ["ceguera-simple","BC04","ConfigurarCeguera","(flag aplicado)","POST /submissions/{id}/assignments","ADR-000"],
+  ["aceptacion","BC04","AceptarInvitacion","InvitacionAceptada","POST /assignments/{id}/accept","ADR-000"],
+  ["declinacion","BC04","DeclinarInvitacion","InvitacionDeclinada","POST /assignments/{id}/decline","ADR-000"],
+  ["entrega","BC04","RegistrarRevision","RevisionRegistrada","POST /submissions/{id}/reviews","ADR-000"],
+  ["historial","BC04","ConsultarHistorial","—","GET /submissions/{id}/reviews","ADR-000"],
+  ["decision","BC05","CalcularDecisionEditorial","DecisionEmitida","POST /submissions/{id}/decision","ADR-000"],
+  ["aceptacion-final","BC05","EmitirCertificado","CertificadoEmitido","POST /submissions/{id}/acceptance-letter","ADR-000"],
+  ["alta-revista","BC06","CrearRevista","VenueCreado","POST /venues/journals","ADR-000"],
+  ["alta-evento","BC06","CrearEvento","EventoCreado","POST /venues/conferences","ADR-000"],
+  ["versionado-reglas","BC06","PublicarVersionReglas","ReglasPublicadas","POST /venues/{id}/rulesets","ADR-000"],
+  ["roles-editoriales","BC06","AsignarRolEditorial","RolesAsignados","POST /venues/{id}/roles","ADR-000"],
+  ["metricas-autor","BC07","GenerarMetricasAutor","ReporteGenerado","GET /reports/authors","ADR-000"],
+  ["metricas-revista","BC07","GenerarMetricasRevista","ReporteGenerado","GET /reports/venues","ADR-000"],
+  ["export","BC07","GenerarExportacion","ExportacionLista","POST /exports","ADR-000"],
+  ["boletin","BC07","EnviarBoletin","BoletinEnviado","POST /digests/monthly","ADR-000"],
+  ["orcid","BC08","SincronizarORCID","PerfilSincronizado","POST /integrations/orcid/sync","ADR-000"],
+  ["scopus-scholar","BC08","ImportarPublicaciones","PublicacionesImportadas","POST /integrations/scholar-scopus/sync","ADR-000"],
+  ["doi","BC08","ValidarDOI","DOIVerificado","POST /integrations/doi/validate","ADR-000"],
+];
+
+/* --- BDD snippets (subset) --- */
+const bddBlocks = [
+{ tag:"@registro-exitoso", feature:"Registro y autenticación de investigadores", text:`Feature: Registro y autenticación de investigadores
+  @registro-exitoso
+  Scenario: Registro exitoso con ORCID y verificación de email
+    Given existe el proveedor de identidad "ORCID"
+    And no existe una cuenta previa con email "ana@uni.edu"
+    When el Investigador se registra con ORCID válido y email "ana@uni.edu"
+    And confirma el email recibido
+    Then la cuenta "ana@uni.edu" queda en estado "Activa"
+    And el perfil se crea con ORCID vinculado`},
+{ tag:"@autenticacion-ok", feature:"Registro y autenticación de investigadores", text:`@autenticacion-ok
+Scenario: Autenticación exitosa con credenciales válidas
+  Given existe la cuenta "ana@uni.edu" en estado "Activa" con password "s3cret!"
+  When intenta autenticarse con email "ana@uni.edu" y password "s3cret!"
+  Then el acceso es concedido
+  And se registra auditoría de inicio de sesión`},
+{ tag:"@autenticacion-falla", feature:"Registro y autenticación de investigadores", text:`@autenticacion-falla
+Scenario: Autenticación rechazada por contraseña incorrecta
+  Given existe la cuenta "ana@uni.edu" en estado "Activa" con password "s3cret!"
+  When intenta autenticarse con email "ana@uni.edu" y password "wrong"
+  Then el acceso es denegado por credenciales inválidas`},
+{ tag:"@bloqueo", feature:"Registro y autenticación de investigadores", text:`@bloqueo
+Scenario: Bloqueo por múltiples intentos fallidos
+  Given existe la cuenta "mike@uni.edu" en estado "Activa" con password "pass"
+  When intenta autenticarse 5 veces con password incorrecto
+  Then la cuenta "mike@uni.edu" queda en estado "Bloqueada"
+  And se notifica al usuario por email`},
+{ tag:"@perfil-basico", feature:"Gestión de perfil de investigador", text:`@perfil-basico
+Scenario: Completar afiliación y áreas de interés
+  Given el Investigador "Ana" tiene un perfil inicial sin afiliación ni áreas
+  When actualiza afiliación a "Universidad X" y áreas ["IA", "NLP"]
+  Then el perfil de "Ana" muestra afiliación "Universidad X" y áreas ["IA", "NLP"]`},
+{ tag:"@sincronizacion-metricas", feature:"Gestión de perfil de investigador", text:`@sincronizacion-metricas
+Scenario: Importar métricas desde ORCID/Google Scholar
+  Given el perfil "Ana" tiene ORCID vinculado
+  When sincroniza métricas desde "Google Scholar"
+  Then el perfil exhibe métricas actualizadas con fuente "Google Scholar"`},
+{ tag:"@envio-evento", feature:"Envío y versionado de artículos", text:`@envio-evento
+Scenario: Envío válido a evento antes del deadline
+  Given existe el Evento "IC-2026" con fecha límite "2026-05-01"
+  When envío el Artículo "A-101" en fecha "2026-04-20"
+  Then se registra el Envío "E-1" en estado "Enviado" con versión 1`},
+{ tag:"@deadline", feature:"Envío y versionado de artículos", text:`@deadline
+Scenario: Rechazo por envío fuera de fecha
+  Given existe el Evento "IC-2026" con fecha límite "2026-05-01"
+  When envío el Artículo "A-102" en fecha "2026-05-10"
+  Then el sistema rechaza el envío por deadline excedido`},
+{ tag:"@alta-revisor", feature:"Registro de revisores y especialidades", text:`@alta-revisor
+Scenario: Registro de revisor con especialidades
+  Given no existe el Revisor "r1"
+  When registro al Revisor "r1" con especialidades ["IA","NLP"]
+  Then el Revisor "r1" queda "Activo" con especialidades ["IA","NLP"]`},
+{ tag:"@auto-assign", feature:"Asignación de revisores", text:`@auto-assign
+Scenario: Asignación automática según especialidad y conflictos
+  Given existe el Envío "E-1" con tema "NLP"
+  And candidatos ["r1:IA","r2:SE","r3:NLP","r4:IA"]
+  And "r2" tiene conflicto con el Autor de "E-1"
+  And las reglas exigen "3" revisores
+  When ejecuto la asignación automática para "E-1"
+  Then quedan asignados 3 revisores sin conflictos`},
+{ tag:"@decision", feature:"Gestión editorial", text:`@decision
+Scenario: Registro de decisión editorial
+  Given existen revisiones suficientes
+  When registro la decisión "ACCEPT"
+  Then el envío queda actualizado y se habilita carta de aceptación`},
+];
+
+/* ---------- UI helpers ---------- */
+const tabs = [
+  {id:"intro", label:"Resumen"},
+  {id:"requisitos", label:"Requisitos"},
+  {id:"bdd", label:"Escenarios BDD"},
+  {id:"fase1", label:"Fase 1"},
+  {id:"fase2", label:"Fase 2"},
+  {id:"fase3", label:"Fase 3"},
+  {id:"fase4", label:"Fase 4"},
+  {id:"fase5", label:"Fase 5"}
+];
+
+function mountTabs(){
+  const nav = document.getElementById('tabs');
+  tabs.forEach(t => {
+    const b=document.createElement('button'); b.textContent=t.label;
+    b.onclick=()=>activate(t.id);
+    if(t.id==='intro') b.classList.add('active');
+    nav.appendChild(b);
+  });
+}
+
+function activate(id){
+  document.querySelectorAll('nav button').forEach(b => b.classList.toggle('active', b.textContent===tabs.find(t=>t.id===id).label));
+  document.querySelectorAll('main section').forEach(s => s.classList.toggle('active', s.id===id));
+  if(id==='fase3') setTimeout(drawEdges, 0);
+}
+
+function makeControls(onSearch){
+  const div = document.createElement('div'); div.className='controls';
+  const left = document.createElement('div'); left.className='search';
+  const input=document.createElement('input'); input.placeholder='Buscar…'; input.oninput=(e)=>onSearch(e.target.value.trim().toLowerCase());
+  left.append('🔎', input);
+  const right = document.createElement('div');
+  const btn=document.createElement('button'); btn.className='btn'; btn.textContent='Imprimir / PDF'; btn.onclick=()=>print();
+  right.append(btn);
+  div.append(left,right);
+  return div;
+}
+
+function renderRequisitos(){
+  const sec=document.getElementById('requisitos'); sec.innerHTML='';
+  const card=document.createElement('div'); card.className='card';
+  card.innerHTML=`<h3>Requisitos funcionales</h3>
+  <p class="muted">${requisitos.contexto}</p>`;
+  const ul=document.createElement('ul'); ul.className='muted';
+  requisitos.funcionales.forEach(x=>{ const li=document.createElement('li'); li.textContent=x; ul.appendChild(li); });
+  card.appendChild(ul);
+  sec.appendChild(card);
+}
+
+function renderBDD(){
+  const sec=document.getElementById('bdd'); sec.innerHTML='';
+  const card=document.createElement('div'); card.className='card';
+  card.innerHTML='<h3>Escenarios clave (Gherkin)</h3>';
+  bddBlocks.forEach(b=>{
+    const bar=document.createElement('div'); bar.className='codebar';
+    const left=document.createElement('div'); left.innerHTML=`<span class="tag">${b.feature}</span> <span class="tag">${b.tag}</span>`;
+    const copy=document.createElement('button'); copy.className='btn'; copy.textContent='Copiar'; copy.onclick=()=>navigator.clipboard.writeText(b.text);
+    card.append(left, copy);
+    const pre=document.createElement('pre'); pre.innerHTML=`<code>${escapeHtml(b.text)}</code>`;
+    sec.append(card.cloneNode(true)); // keep header only once
+    sec.lastChild.innerHTML=''; // reset
+  });
+  // Rebuild with actual blocks
+  sec.innerHTML='';
+  const title=document.createElement('div'); title.className='card'; title.innerHTML='<h3>Escenarios clave (Gherkin)</h3><p class="muted">Fragmentos listos para copiar y pegar en pruebas BDD.</p>';
+  sec.appendChild(title);
+  bddBlocks.forEach(b=>{
+    const c=document.createElement('div'); c.className='card';
+    const bar=document.createElement('div'); bar.className='codebar';
+    bar.innerHTML=`<div><span class="tag">${b.feature}</span> <span class="tag">${b.tag}</span></div>`;
+    const copy=document.createElement('button'); copy.className='btn'; copy.textContent='Copiar';
+    copy.onclick=()=>navigator.clipboard.writeText(b.text);
+    bar.appendChild(copy);
+    c.appendChild(bar);
+    const pre=document.createElement('pre'); pre.innerHTML=`<code>${escapeHtml(b.text)}</code>`;
+    c.appendChild(pre);
+    sec.appendChild(c);
+  });
+}
+
+function renderFase1(){
+  const sec=document.getElementById('fase1'); sec.innerHTML='';
+  const card=document.createElement('div'); card.className='card';
+  card.innerHTML='<h3>Fase 1 · Grupos funcionales → candidatos a bounded contexts</h3>';
+  const controls = makeControls(filter);
+  const table=document.createElement('table');
+  table.innerHTML=`<thead><tr><th>ID</th><th>Nombre</th><th>Propósito</th><th>Escenarios</th></tr></thead><tbody></tbody>`;
+  const tbody=table.querySelector('tbody');
+  gruposF1.forEach(g=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${g.id}</td><td>${g.nombre}</td><td>${g.proposito}</td><td>${g.escenarios.join(', ')}</td>`;
+    tbody.appendChild(tr);
+  });
+  function filter(q){ [...tbody.children].forEach(tr=>{
+    tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });}
+  card.append(controls, table);
+  sec.appendChild(card);
+}
+
+function renderFase2(){
+  const sec=document.getElementById('fase2'); sec.innerHTML='';
+  const card=document.createElement('div'); card.className='card';
+  card.innerHTML='<h3>Fase 2 · Comandos y eventos por contexto</h3>';
+  const controls = makeControls(filter);
+  const table=document.createElement('table');
+  table.innerHTML=`<thead><tr><th>Contexto funcional</th><th>Comandos (When)</th><th>Eventos (Then)</th></tr></thead><tbody></tbody>`;
+  const tbody=table.querySelector('tbody');
+  fase2ComEv.forEach(r=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${r.ctx}</td><td>${r.comandos.join(', ')}</td><td>${r.eventos.join(', ')}</td>`;
+    tbody.appendChild(tr);
+  });
+  function filter(q){ [...tbody.children].forEach(tr=>tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none'); }
+  card.append(controls, table);
+  sec.appendChild(card);
+}
+
+function renderFase3(){
+  const sec=document.getElementById('fase3'); sec.innerHTML='';
+  const grid=document.createElement('div'); grid.className='grid';
+  const left=document.createElement('div'); left.className='card span6';
+  left.innerHTML='<h3>Fase 3 · Bounded contexts</h3>';
+  const table=document.createElement('table'); table.innerHTML='<thead><tr><th>ID</th><th>Responsabilidad</th></tr></thead><tbody></tbody>';
+  const tbody=table.querySelector('tbody');
+  bc.forEach(x=>{
+    const tr=document.createElement('tr'); tr.innerHTML=`<td><strong>${x.id}</strong> · ${x.name}</td><td>${x.resp}</td>`; tbody.appendChild(tr);
+  });
+  left.appendChild(table);
+
+  const right=document.createElement('div'); right.className='card span6';
+  right.innerHTML='<h3>Context map (interacciones)</h3><div id="mapWrap"><svg id="mapSvg"></svg></div>';
+  const list=document.createElement('div'); list.className='muted'; list.style.marginTop='10px';
+  list.innerHTML = interactions.map(e=>`• <strong>${e.from}</strong> → <strong>${e.to}</strong> <em>(${e.type})</em> — ${e.note}`).join('<br/>');
+  right.appendChild(list);
+
+  grid.append(left,right);
+  sec.appendChild(grid);
+
+  // mount boxes after render
+  setTimeout(()=>{
+    const wrap=document.getElementById('mapWrap');
+    const cols=4, rowH=170, colW=250, ox=10, oy=10;
+    bc.forEach((x,i)=>{
+      const box=document.createElement('div'); box.className='ctx'; box.id=x.id;
+      const r=Math.floor(i/cols), c=i%cols;
+      box.style.left = (ox + c*colW) + 'px';
+      box.style.top  = (oy + r*rowH) + 'px';
+      box.innerHTML = `<h4>${x.id} · ${x.name}</h4><p>${x.resp}</p>`;
+      wrap.appendChild(box);
+    });
+    drawEdges();
+  }, 0);
+}
+
+function drawEdges(){
+  const svg=document.getElementById('mapSvg'); const wrap=svg.parentElement;
+  const boxes=[...wrap.querySelectorAll('.ctx')];
+  const bb=wrap.getBoundingClientRect();
+  svg.setAttribute('width', wrap.clientWidth); svg.setAttribute('height', wrap.clientHeight);
+  svg.innerHTML = `
+    <defs>
+      <marker id="arrow" markerWidth="10" markerHeight="8" refX="8" refY="4" orient="auto">
+        <polygon points="0 0, 10 4, 0 8" fill="#64b5f6"></polygon>
+      </marker>
+    </defs>
+  `;
+  function center(el){
+    const r=el.getBoundingClientRect();
+    return { x: (r.left - bb.left) + r.width/2, y: (r.top - bb.top) + r.height/2 };
+  }
+  function edge(fromId,toId){
+    const f=document.getElementById(fromId), t=document.getElementById(toId);
+    if(!f||!t) return;
+    const a=center(f), b=center(t);
+    const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+    const dx=b.x-a.x, dy=b.y-a.y, cx1=a.x+dx*0.35, cy1=a.y, cx2=b.x-dx*0.35, cy2=b.y;
+    path.setAttribute('d', `M${a.x},${a.y} C ${cx1},${cy1} ${cx2},${cy2} ${b.x},${b.y}`);
+    path.setAttribute('class','edge'); svg.appendChild(path);
+  }
+  interactions.forEach(e=>edge(e.from, e.to));
+}
+
+function renderFase4(){
+  const sec=document.getElementById('fase4'); sec.innerHTML='';
+  const card=document.createElement('div'); card.className='card';
+  card.innerHTML='<h3>Fase 4 · Contratos API (contract‑first)</h3>';
+  const controls = makeControls(filter);
+  const table=document.createElement('table');
+  table.innerHTML=`<thead><tr><th>G</th><th>Contexto</th><th>Método</th><th>Endpoint</th><th>Request (claves)</th><th>Response (claves)</th><th>Códigos</th><th>Escenario</th></tr></thead><tbody></tbody>`;
+  const tbody=table.querySelector('tbody');
+  endpoints.forEach(e=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${e.g}</td><td>${e.ctx}</td><td><strong>${e.method}</strong></td><td><code>${e.path}</code></td><td>${e.req}</td><td>${e.res}</td><td>${e.codes}</td><td>${e.escenario}</td>`;
+    tbody.appendChild(tr);
+  });
+  function filter(q){ [...tbody.children].forEach(tr=>tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none'); }
+  card.append(controls, table);
+  sec.appendChild(card);
+}
+
+function renderFase5(){
+  const sec=document.getElementById('fase5'); sec.innerHTML='';
+  const grid=document.createElement('div'); grid.className='grid';
+
+  const c1=document.createElement('div'); c1.className='card span6';
+  c1.innerHTML='<h3>Fase 5 · ADR</h3>';
+  const ul=document.createElement('ul'); ul.className='muted';
+  adrLog.forEach(a=>{
+    const li=document.createElement('li'); li.innerHTML = `<strong>${a.id}</strong> (${a.estado} · ${a.fecha}) — ${a.texto}`; ul.appendChild(li);
+  });
+  c1.appendChild(ul);
+
+  const c2=document.createElement('div'); c2.className='card span6';
+  c2.innerHTML='<h3>Trazabilidad evolutiva (Escenario → Comando → Evento → Endpoint → ADR)</h3>';
+  const controls = makeControls(filter);
+  const table=document.createElement('table');
+  table.innerHTML='<thead><tr><th>Escenario</th><th>BC</th><th>Comando</th><th>Evento</th><th>Contrato</th><th>ADR</th></tr></thead><tbody></tbody>';
+  const tbody=table.querySelector('tbody');
+  trazabilidad.forEach(r=>{
+    const tr=document.createElement('tr'); tr.innerHTML = r.map(x=>`<td>${x}</td>`).join(''); tbody.appendChild(tr);
+  });
+  function filter(q){ [...tbody.children].forEach(tr=>tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none'); }
+  c2.append(controls, table);
+
+  grid.append(c1,c2);
+  sec.appendChild(grid);
+}
+
+/* ---------- Render all ---------- */
+function escapeHtml(s){ return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',\"'\":'&#39;'}[m])); }
+function init(){
+  mountTabs();
+  renderRequisitos();
+  renderBDD();
+  renderFase1();
+  renderFase2();
+  renderFase3();
+  renderFase4();
+  renderFase5();
+  window.addEventListener('resize', ()=>{ if(document.getElementById('fase3').classList.contains('active')) drawEdges(); });
+}
+document.addEventListener('DOMContentLoaded', init);
+</script>
 </body>
 </html>
