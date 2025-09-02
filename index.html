@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>BDMA – Iteración 1 · Demo estática (HTML/CSS/JS)</title>
+<title>BDMA – Iteración 1 · Sitio de soporte a la evaluación</title>
 <style>
   :root{
     --bg:#0b0c10;
-    --panel:#111318;
-    --muted:#9aa3af;
+    --panel:#0e1117;
+    --muted:#a3a3a3;
     --text:#f1f5f9;
     --brand:#60a5fa;
     --accent:#34d399;
@@ -23,21 +23,19 @@
   html,body{height:100%}
   body{
     margin:0;
-    font: 15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif;
+    font: 15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif;
     color:var(--text);
-    background:linear-gradient(180deg, #0a0f1c, #0b0c10 25% 100%);
+    background:linear-gradient(180deg, #0b1020, #0b0c10 30% 100%);
   }
   header{
     position:sticky; top:0; z-index:5;
-    background:rgba(10,14,24,.75); backdrop-filter: blur(8px);
+    background:rgba(10,14,24,.85); backdrop-filter: blur(8px);
     border-bottom:1px solid var(--border);
   }
-  .wrap{max-width:1100px; margin:0 auto; padding:16px}
-  .title{
-    display:flex; gap:14px; align-items:center; flex-wrap:wrap;
-  }
-  .badge{padding:3px 8px; border:1px solid var(--border); border-radius:999px; color:var(--muted)}
-  .title h1{font-size:20px; margin:0}
+  .wrap{max-width:1160px; margin:0 auto; padding:16px}
+  .title{display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap}
+  .title h1{font-size:22px; margin:0}
+  .lead{margin:6px 0 0 0; color:#cbd5e1}
   nav{display:flex; gap:10px; margin-top:12px; flex-wrap:wrap}
   nav button{
     background:#0c1220; color:#dbe6ff; border:1px solid var(--border); border-radius:10px;
@@ -49,7 +47,7 @@
   section.active{display:block; animation:fade .2s ease}
   @keyframes fade{from{opacity:.6; transform:translateY(4px)} to{opacity:1; transform:none}}
 
-  /* Cards & tables */
+  /* layout */
   .grid{display:grid; grid-template-columns:repeat(12,1fr); gap:14px}
   .card{grid-column: span 12; background:linear-gradient(180deg,#0f172a,#0b1220 40% 100%);
         border:1px solid var(--border); border-radius:16px; padding:16px}
@@ -61,16 +59,13 @@
 
   table{width:100%; border-collapse:collapse; background:#0b1220; border:1px solid var(--border); border-radius:12px; overflow:hidden}
   th,td{padding:10px 12px; border-bottom:1px solid var(--border); vertical-align:top}
-  th{background:#0f172a; text-align:left; color:#cbd5e1; position:sticky; top:0}
+  th{background:#0f172a; text-align:left; color:#cbd5e1; position:sticky; top:0; z-index:1}
   tr:hover td{background:#0e1528}
   .controls{display:flex; gap:10px; justify-content:space-between; align-items:center; margin:8px 0 14px}
   .search{display:flex; gap:8px; align-items:center}
   .search input{background:#0b1220; color:#e2e8f0; border:1px solid var(--border); border-radius:10px; padding:8px 10px; width:280px}
   .btn{appearance:none; background:#0c1220; color:#e5edff; border:1px solid var(--border); border-radius:10px; padding:8px 12px; cursor:pointer}
   .btn:hover{border-color:#2b66ff}
-  .btn.acc{border-color:#065f46; color:#d1fae5}
-  .btn.warn{border-color:#7c5800; color:#fde68a}
-  .btn.danger{border-color:#7f1d1d; color:#fecaca}
   a{color:var(--link); text-decoration:none}
   a:hover{text-decoration:underline}
 
@@ -80,84 +75,114 @@
   .tag{font-size:12px; color:#a3bffa; background:#0b1220; border:1px solid var(--border); border-radius:999px; padding:2px 8px}
 
   /* Context map */
-  #mapWrap{position:relative; background:#0b1220; border:1px solid var(--border); border-radius:16px; padding:12px; min-height:440px}
+  #mapWrap{position:relative; background:#0b1220; border:1px solid var(--border); border-radius:16px; padding:12px; min-height:500px}
   #mapSvg{position:absolute; inset:0; pointer-events:none}
-  .ctx{position:absolute; width:220px; min-height:68px; background:#0f172a; border:1px solid var(--border); border-radius:12px; padding:10px}
+  .ctx{position:absolute; width:240px; min-height:72px; background:#0f172a; border:1px solid var(--border); border-radius:12px; padding:10px}
   .ctx h4{margin:0 0 6px 0; font-size:15px; color:#e5e7eb}
   .ctx p{margin:0; color:#a1a1aa; font-size:13px}
   .edge{stroke:#64b5f6; stroke-width:2; marker-end:url(#arrow)}
 
   /* Responsive */
-  @media (min-width:820px){
+  @media (min-width:860px){
     .card.span6{grid-column: span 6}
   }
   @media print{
     header, nav, .controls{display:none !important}
     body{background:white; color:black}
     .card, table, pre{border-color:#ddd}
+    a{color:black; text-decoration:none}
   }
+
+  footer{padding:28px 16px; border-top:1px solid var(--border); color:#98a2b3}
 </style>
 </head>
 <body>
   <header>
     <div class="wrap">
       <div class="title">
-        <h1>BDMA – Iteración 1 · Demo estática</h1>
-        <span class="badge">HTML + CSS + JS</span>
-        <span class="badge">Publicable en GitHub Pages</span>
+        <div>
+          <h1>BDMA – Iteración 1 · Sitio de soporte a la evaluación</h1>
+          <p class="lead">Recolección curada de artefactos: requisitos, escenarios BDD, derivaciones de Fase 1 a 5, contratos API y trazabilidad integral.</p>
+        </div>
+        <div class="kpi">
+          <span class="pill">8 bounded contexts</span>
+          <span class="pill">25+ endpoints</span>
+          <span class="pill">Gherkin listo para copiar</span>
+          <span class="pill">Context map interactivo</span>
+        </div>
       </div>
       <nav id="tabs"></nav>
     </div>
   </header>
 
   <main class="wrap">
+    <!-- RESUMEN -->
     <section id="intro" class="active">
       <div class="grid">
         <div class="card">
           <h3>Propósito</h3>
-          <p class="muted">Esta demo estática resume los artefactos de la primera iteración de <strong>BDMA (Behavior‑Driven Microservice Architecture)</strong> para una plataforma de publicaciones científicas. Incluye requisitos, escenarios BDD, agrupamientos funcionales (Fase 1), comandos/eventos y entidades (Fase 2), bounded contexts e interacciones (Fase 3), contratos API contract‑first (Fase 4), y trazabilidad + ADR (Fase 5).</p>
-          <div class="kpi">
-            <span class="pill">8 bounded contexts</span>
-            <span class="pill">~25 endpoints</span>
-            <span class="pill">Escenarios clave en Gherkin</span>
-            <span class="pill">Context map interactivo (SVG)</span>
-          </div>
+          <p class="muted">Este sitio acompaña la evaluación del artículo sobre <strong>BDMA (Behavior-Driven Microservice Architecture)</strong> aplicado a una plataforma de publicaciones científicas. Se exponen artefactos trazables que evidencian cómo los escenarios BDD conducen, paso a paso, a la identificación de bounded contexts, contratos API y decisiones de arquitectura.</p>
+          <div class="info">Todos los contenidos son estáticos, autocontenidos y pueden imprimirse o exportarse a PDF desde el navegador.</div>
         </div>
 
         <div class="card span6">
-          <h3>Cómo usar</h3>
+          <h3>Cómo navegar</h3>
           <ol class="muted">
-            <li>Navegá por las pestañas superiores.</li>
-            <li>Usá la búsqueda para filtrar tablas.</li>
-            <li>Copiá fragmentos Gherkin con el botón <em>Copiar</em>.</li>
-            <li>Usá <em>Imprimir</em> del navegador para exportar a PDF.</li>
+            <li>Usar las pestañas superiores para acceder a cada fase y artefacto.</li>
+            <li>Filtrar tablas con el cuadro de <em>Buscar…</em>.</li>
+            <li>Copiar fragmentos Gherkin mediante el botón <em>Copiar</em>.</li>
+            <li>Utilizar <em>Imprimir</em> para exportar secciones a PDF.</li>
           </ol>
         </div>
+
         <div class="card span6">
-          <h3>Licencia y publicación</h3>
-          <p class="muted">Subí este archivo como <code>index.html</code> al repositorio <code>username.github.io</code> o activá <em>GitHub Pages</em> en la rama principal. No requiere build ni dependencias.</p>
+          <h3>Alcance</h3>
+          <p class="muted">Primera iteración: desde requisitos y escenarios clave hasta contratos contract‑first y bitácora ADR inicial. Las decisiones se establecen con una granularidad adecuada para su verificación empírica.</p>
         </div>
       </div>
     </section>
 
+    <!-- REQUISITOS -->
     <section id="requisitos"></section>
+
+    <!-- BDD -->
     <section id="bdd"></section>
+
+    <!-- FASE 1 -->
     <section id="fase1"></section>
+
+    <!-- FASE 2 -->
     <section id="fase2"></section>
+
+    <!-- FASE 3 -->
     <section id="fase3"></section>
+
+    <!-- FASE 4 -->
     <section id="fase4"></section>
+
+    <!-- FASE 5 -->
     <section id="fase5"></section>
   </main>
 
+  <footer class="wrap">
+    <small>BDMA – Sitio de soporte para evaluación. Versión de demostración estática.</small>
+  </footer>
+
 <script>
-/* ---------- Data (curated from artefacts de la Iteración 1) ---------- */
+/* ---------- Data (curada a partir de la Iteración 1) ---------- */
 const requisitos = {
-  contexto: "Plataforma distribuida para gestión de publicaciones (revistas y congresos).",
+  contexto: "Plataforma distribuida para revistas y congresos científicos; soporte para ciclo de vida editorial con revisión por pares.",
+  noFunc: [
+    "Trazabilidad: escenarios ↔ comandos ↔ eventos ↔ contratos ↔ ADR",
+    "Auditabilidad de acciones críticas (login, decisiones, emisiones)",
+    "Evolución controlada de políticas y reglas editoriales",
+    "Integración segura con proveedores externos (ORCID, Scholar/Scopus, DOI)"
+  ],
   funcionales: [
     "Registro y autenticación de investigadores",
     "Perfiles con afiliación, ORCID, áreas e indicadores",
     "Envío y versionado; control de deadlines",
-    "Registro de revisores; asignación auto/manual; revisión ciega simple/doble",
+    "Registro de revisores; conflictos; asignación auto/manual; revisión ciega simple",
     "Historial de revisiones por artículo",
     "Alta de venues (revistas/eventos) y reglas editoriales versionadas; roles",
     "Métricas, reportes, exportaciones y boletines",
@@ -206,7 +231,7 @@ const interactions = [
   {from:"BC06", to:"BC03", type:"OHS + Event Publisher", note:"Reglas publicadas"},
   {from:"BC06", to:"BC04", type:"OHS + Event Publisher", note:"Reglas publicadas"},
   {from:"BC06", to:"BC05", type:"OHS + Event Publisher", note:"Reglas publicadas"},
-  {from:"BC08", to:"BC02", type:"ACL", note:"Sync de perfil/metricas"},
+  {from:"BC08", to:"BC02", type:"ACL", note:"Sync de perfil/métricas"},
   {from:"BC08", to:"BC03", type:"ACL", note:"Validación DOI/Metadatos"}
 ];
 
@@ -245,12 +270,7 @@ const endpoints = [
 ];
 
 const adrLog = [
-  {
-    id:"ADR-000",
-    fecha:"2025-08-11",
-    estado:"Aceptado",
-    texto:"Adoptar la arquitectura resultante de BDMA Fases 1–4 como versión inicial (v1.0)."
-  }
+  { id:"ADR-000", fecha:"2025-08-11", estado:"Aceptado", texto:"Adoptar la arquitectura resultante de BDMA Fases 1–4 como versión inicial (v1.0)." }
 ];
 
 const trazabilidad = [
@@ -288,7 +308,7 @@ const trazabilidad = [
   ["doi","BC08","ValidarDOI","DOIVerificado","POST /integrations/doi/validate","ADR-000"],
 ];
 
-/* --- BDD snippets (subset) --- */
+/* --- BDD snippets (subset curado) --- */
 const bddBlocks = [
 { tag:"@registro-exitoso", feature:"Registro y autenticación de investigadores", text:`Feature: Registro y autenticación de investigadores
   @registro-exitoso
@@ -398,32 +418,27 @@ function makeControls(onSearch){
 
 function renderRequisitos(){
   const sec=document.getElementById('requisitos'); sec.innerHTML='';
-  const card=document.createElement('div'); card.className='card';
-  card.innerHTML=`<h3>Requisitos funcionales</h3>
-  <p class="muted">${requisitos.contexto}</p>`;
-  const ul=document.createElement('ul'); ul.className='muted';
-  requisitos.funcionales.forEach(x=>{ const li=document.createElement('li'); li.textContent=x; ul.appendChild(li); });
-  card.appendChild(ul);
-  sec.appendChild(card);
+  const grid=document.createElement('div'); grid.className='grid';
+
+  const c1=document.createElement('div'); c1.className='card span6';
+  c1.innerHTML=`<h3>Requisitos funcionales</h3>
+    <p class="muted">${requisitos.contexto}</p>
+    <ul class="muted">${requisitos.funcionales.map(x=>`<li>${x}</li>`).join('')}</ul>`;
+
+  const c2=document.createElement('div'); c2.className='card span6';
+  c2.innerHTML=`<h3>Requisitos no funcionales</h3>
+    <ul class="muted">${requisitos.noFunc.map(x=>`<li>${x}</li>`).join('')}</ul>`;
+
+  grid.append(c1,c2);
+  sec.appendChild(grid);
 }
 
 function renderBDD(){
   const sec=document.getElementById('bdd'); sec.innerHTML='';
-  const card=document.createElement('div'); card.className='card';
-  card.innerHTML='<h3>Escenarios clave (Gherkin)</h3>';
-  bddBlocks.forEach(b=>{
-    const bar=document.createElement('div'); bar.className='codebar';
-    const left=document.createElement('div'); left.innerHTML=`<span class="tag">${b.feature}</span> <span class="tag">${b.tag}</span>`;
-    const copy=document.createElement('button'); copy.className='btn'; copy.textContent='Copiar'; copy.onclick=()=>navigator.clipboard.writeText(b.text);
-    card.append(left, copy);
-    const pre=document.createElement('pre'); pre.innerHTML=`<code>${escapeHtml(b.text)}</code>`;
-    sec.append(card.cloneNode(true)); // keep header only once
-    sec.lastChild.innerHTML=''; // reset
-  });
-  // Rebuild with actual blocks
-  sec.innerHTML='';
-  const title=document.createElement('div'); title.className='card'; title.innerHTML='<h3>Escenarios clave (Gherkin)</h3><p class="muted">Fragmentos listos para copiar y pegar en pruebas BDD.</p>';
+  const title=document.createElement('div'); title.className='card';
+  title.innerHTML='<h3>Escenarios clave (Gherkin)</h3><p class="muted">Fragmentos listos para copiar y pegar en suites de pruebas BDD.</p>';
   sec.appendChild(title);
+
   bddBlocks.forEach(b=>{
     const c=document.createElement('div'); c.className='card';
     const bar=document.createElement('div'); bar.className='codebar';
@@ -479,6 +494,7 @@ function renderFase2(){
 function renderFase3(){
   const sec=document.getElementById('fase3'); sec.innerHTML='';
   const grid=document.createElement('div'); grid.className='grid';
+
   const left=document.createElement('div'); left.className='card span6';
   left.innerHTML='<h3>Fase 3 · Bounded contexts</h3>';
   const table=document.createElement('table'); table.innerHTML='<thead><tr><th>ID</th><th>Responsabilidad</th></tr></thead><tbody></tbody>';
@@ -490,7 +506,10 @@ function renderFase3(){
 
   const right=document.createElement('div'); right.className='card span6';
   right.innerHTML='<h3>Context map (interacciones)</h3><div id="mapWrap"><svg id="mapSvg"></svg></div>';
-  const list=document.createElement('div'); list.className='muted'; list.style.marginTop='10px';
+  const legend=document.createElement('p'); legend.className='muted';
+  legend.innerHTML='Líneas curvas indican dependencias/eventos. Se listan interacciones clave debajo.';
+  right.appendChild(legend);
+  const list=document.createElement('div'); list.className='muted'; list.style.marginTop='8px';
   list.innerHTML = interactions.map(e=>`• <strong>${e.from}</strong> → <strong>${e.to}</strong> <em>(${e.type})</em> — ${e.note}`).join('<br/>');
   right.appendChild(list);
 
@@ -500,7 +519,7 @@ function renderFase3(){
   // mount boxes after render
   setTimeout(()=>{
     const wrap=document.getElementById('mapWrap');
-    const cols=4, rowH=170, colW=250, ox=10, oy=10;
+    const cols=3, rowH=170, colW=280, ox=10, oy=10;
     bc.forEach((x,i)=>{
       const box=document.createElement('div'); box.className='ctx'; box.id=x.id;
       const r=Math.floor(i/cols), c=i%cols;
@@ -544,7 +563,7 @@ function drawEdges(){
 function renderFase4(){
   const sec=document.getElementById('fase4'); sec.innerHTML='';
   const card=document.createElement('div'); card.className='card';
-  card.innerHTML='<h3>Fase 4 · Contratos API (contract‑first)</h3>';
+  card.innerHTML='<h3>Fase 4 · Contratos API (contract-first)</h3>';
   const controls = makeControls(filter);
   const table=document.createElement('table');
   table.innerHTML=`<thead><tr><th>G</th><th>Contexto</th><th>Método</th><th>Endpoint</th><th>Request (claves)</th><th>Response (claves)</th><th>Códigos</th><th>Escenario</th></tr></thead><tbody></tbody>`;
