@@ -1,0 +1,103 @@
+Fase 5
+Artefactos
+
+A1. Bitácora de decisiones arquitectónicas (ADR Log)
+ADR-000 – Definición de arquitectura inicial de la plataforma académica
+•	Estado: Aceptado.
+•	Fecha: 2025-08-11
+•	Contexto: La plataforma académica se encuentra en etapa inicial. Se definieron escenarios BDD, grupos funcionales, bounded contexts, relaciones inter-contexto y contratos API iniciales como baseline arquitectónico.
+•	Decisión: Adoptar la arquitectura resultante de la aplicación de las fases 1–4 de BDMA como versión inicial.
+•	Consecuencias:
+o	Esta versión será la referencia para evaluar cambios en futuras iteraciones de la Fase 5.
+o	Todos los bounded contexts, modelos de dominio y contratos API definidos se consideran vigentes en versión 1.0.
+•	Artefactos relacionados:
+o	Context Map v1.0
+o	Modelos de dominio v1.0
+o	Contratos API v1.0
+•	A2. Informe de trazabilidad evolutiva
+Escenario BDD	Bounded Context	Comando (When)	Evento (Then)	Endpoint / Contrato API	ADR Asociado
+registro-exitoso	BC01 – Identity & Access	RegistrarCuenta	CuentaActivada	POST /auth/register	ADR-000
+autenticacion-ok	BC01 – Identity & Access	Autenticar	SesionIniciada	POST /auth/login	ADR-000
+autenticacion-falla	BC01 – Identity & Access	Autenticar	AccesoDenegado	POST /auth/login	ADR-000
+bloqueo	BC01 – Identity & Access	BloquearCuenta	CuentaBloqueada	POST /auth/lockouts/evaluate	ADR-000
+perfil-basico	BC02 – Profiles	ActualizarPerfil	PerfilActualizado	PUT /profiles/{researcherId}	ADR-000
+sincronizacion-metricas	BC02 – Profiles	SincronizarMetricas	MetricasSincronizadas	POST /profiles/{researcherId}/metrics/sync	ADR-000
+envio-evento	BC03 – Submissions	RegistrarEnvioEvento	EnvioRegistrado	POST /venues/{venueId}/submissions	ADR-000
+envio-revista	BC03 – Submissions	RegistrarEnvioRevista	EnvioRegistrado	POST /journals/{journalId}/submissions	ADR-000
+deadline	BC03 – Submissions	IntentarRegistrarEnvio	EnvioRechazadoPorDeadline	POST /venues/{venueId}/submissions	ADR-000
+versionado	BC03 – Submissions	AdjuntarVersion	VersionAdjuntada	POST /submissions/{submissionId}/versions	ADR-000
+alta-revisor	BC04 – Reviewing	RegistrarRevisor	RevisorRegistrado	POST /reviewers	ADR-000
+conflictos	BC04 – Reviewing	DeclararConflicto	ConflictoRegistrado	POST /reviewers/{reviewerId}/conflicts	ADR-000
+auto-assign	BC04 – Reviewing	AsignarRevisoresAutomaticamente	RevisoresAsignados	POST /submissions/{submissionId}/assignments:auto	ADR-000
+manual-assign	BC04 – Reviewing	AsignarRevisorManual	RevisorAsignadoManual	POST /submissions/{submissionId}/assignments	ADR-000
+ceguera-simple	BC04 – Reviewing	ConfigurarCeguera	(flag aplicado)	POST /submissions/{submissionId}/assignments	ADR-000
+aceptacion	BC04 – Reviewing	AceptarInvitacion	InvitacionAceptada	POST /assignments/{assignmentId}/accept	ADR-000
+declinacion	BC04 – Reviewing	DeclinarInvitacion	InvitacionDeclinada	POST /assignments/{assignmentId}/decline	ADR-000
+entrega	BC04 – Reviewing	RegistrarRevision	RevisionRegistrada	POST /submissions/{submissionId}/reviews	ADR-000
+historial	BC04 – Reviewing	ConsultarHistorial	—	GET /submissions/{submissionId}/reviews	ADR-000
+decision	BC05 – Editorial Decisioning	CalcularDecisionEditorial	DecisionEmitida	POST /submissions/{submissionId}/decision	ADR-000
+aceptacion-final	BC05 – Editorial Decisioning	EmitirCertificado	CertificadoEmitido	POST /submissions/{submissionId}/acceptance-letter	ADR-000
+alta-revista	BC06 – Venue Management	CrearRevista	VenueCreado	POST /venues/journals	ADR-000
+alta-evento	BC06 – Venue Management	CrearEvento	EventoCreado	POST /venues/conferences	ADR-000
+versionado-reglas	BC06 – Venue Management	PublicarVersionReglas	ReglasPublicadas	POST /venues/{venueId}/rulesets	ADR-000
+roles-editoriales	BC06 – Venue Management	AsignarRolEditorial	RolesAsignados	POST /venues/{venueId}/roles	ADR-000
+metricas-autor	BC07 – Metrics & Reporting	GenerarMetricasAutor	ReporteGenerado	GET /reports/authors	ADR-000
+metricas-revista	BC07 – Metrics & Reporting	GenerarMetricasRevista	ReporteGenerado	GET /reports/venues	ADR-000
+export	BC07 – Metrics & Reporting	GenerarExportacion	ExportacionLista	POST /exports	ADR-000
+boletin	BC07 – Metrics & Reporting	EnviarBoletin	BoletinEnviado	POST /digests/monthly	ADR-000
+orcid	BC08 – External Integrations	SincronizarORCID	PerfilSincronizado	POST /integrations/orcid/sync	ADR-000
+scopus-scholar	BC08 – External Integrations	ImportarPublicaciones	PublicacionesImportadas	POST /integrations/scholar-scopus/sync	ADR-000
+doi	BC08 – External Integrations	ValidarDOI	DOIVerificado	POST /integrations/doi/validate	ADR-000
+•	
+
+A3. Modelos de dominio y context map versionados
+Versión inicial (v1.0) – Fecha: 2025-08-11
+Modelos de dominio
+•	BC01 – Identity & Access
+o	Entidades: Cuenta, Credenciales, PoliticaSeguridad.
+o	Eventos clave: CuentaActivada, SesionIniciada, AccesoDenegado, CuentaBloqueada.
+o	Comandos: RegistrarInvestigador, IniciarSesion, BloquearCuenta.
+•	BC02 – Profiles
+o	Entidades: Perfil, Afiliacion, AreasInteres, FuenteMetricas.
+o	Eventos clave: PerfilActualizado, MetricasSincronizadas.
+o	Comandos: ActualizarPerfil, SincronizarMetricas.
+•	BC03 – Submissions
+o	Entidades: Envio, Version, Archivo, PoliticaEditorial.
+o	Eventos clave: EnvioRegistrado, EnvioRechazadoPorDeadline, VersionAdjuntada.
+o	Comandos: RegistrarEnvioEvento, RegistrarEnvioRevista, AdjuntarVersion.
+•	BC04 – Reviewing
+o	Entidades: Revisor, InvitacionRevision, Revision, PoliticasAsignacion.
+o	Eventos clave: RevisorRegistrado, ConflictoRegistrado, RevisoresAsignados, RevisionRegistrada.
+o	Comandos: RegistrarRevisor, DeclararConflicto, EjecutarAutoAsignacion, AsignarRevisorManual, RegistrarRevision.
+•	BC05 – Editorial Decisioning
+o	Entidades: PoliticasDecision, Certificado, Expediente.
+o	Eventos clave: DecisionEmitida, CertificadoEmitido, ExpedienteCerrado.
+o	Comandos: CalcularDecisionEditorial, EmitirCertificado.
+•	BC06 – Venue Management
+o	Entidades: Revista, Evento, VersionReglas, RolEditorial.
+o	Eventos clave: VenueCreado, EventoCreado, ReglasPublicadas, RolesAsignados.
+o	Comandos: CrearRevista, CrearEvento, PublicarVersionReglas, AsignarRolEditorial.
+•	BC07 – Metrics & Reporting
+o	Entidades: Reporte, Formato, Filtro, Periodo.
+o	Eventos clave: ReporteGenerado, ExportacionLista, BoletinEnviado.
+o	Comandos: GenerarMetricasAutor, GenerarMetricasRevista, GenerarExportacion, EnviarBoletin.
+•	BC08 – External Integrations
+o	Entidades: FuenteExterna, Publicacion, DOI, Metadatos.
+o	Eventos clave: PerfilSincronizado, PublicacionesImportadas, DOIVerificado, MetadatosValidados.
+o	Comandos: SincronizarORCID, ImportarPublicaciones, ValidarDOI.
+
+Context Map
+Relaciones entre bounded contexts (derivadas de la Fase 3):
+Origen	Destino	Tipo de relación	Medio de interacción
+BC01 – Identity & Access	Todos	OHS (Open Host Service)	API Auth + JWT
+BC02 – Profiles	BC04 – Reviewing	ACL	API interna
+BC03 – Submissions	BC04 – Reviewing	Event Publisher / Partnership	Mensajería/eventos
+BC03 – Submissions	BC05 – Editorial Decisioning	Event Publisher / Partnership	Mensajería/eventos
+BC04 – Reviewing	BC05 – Editorial Decisioning	Event Publisher	Mensajería/eventos
+BC05 – Editorial Decisioning	BC03 – Submissions	Event Subscriber	Mensajería/eventos
+BC06 – Venue Management	BC03, BC04, BC05	OHS + Event Publisher	API y eventos
+BC07 – Metrics & Reporting	Todos	Conformist	Lectura directa de proyecciones
+BC08 – External Integrations	BC01, BC02, BC03	ACL	Adaptadores de datos externos
+
+
+

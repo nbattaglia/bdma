@@ -121,8 +121,9 @@
       <div class="grid">
         <div class="card">
           <h3>Propósito</h3>
-          <p class="muted">Este sitio acompaña la evaluación del artículo sobre <strong>BDMA (Behavior-Driven Microservice Architecture)</strong> aplicado a una plataforma de publicaciones científicas. Se exponen artefactos trazables que evidencian cómo los escenarios BDD conducen, paso a paso, a la identificación de bounded contexts, contratos API y decisiones de arquitectura.</p>
-          <div class="info">Todos los contenidos son estáticos, autocontenidos y pueden imprimirse o exportarse a PDF desde el navegador.</div>
+          <p class="muted">Este sitio acompaña la evaluación del artículo sobre <strong>BDMA (Behavior-Driven Microservice Architecture)</strong>, un marco metodológico sistemático y reproducible que guía la identificación, diseño y evolución de arquitecturas de microservicios en contextos ágiles greenfield.</p>
+          <p class="muted">BDMA transforma escenarios funcionales BDD en bounded contexts, contratos de servicio e interfaces verificables, integrando principios de Domain-Driven Design (DDD), técnicas de Behavior-Driven Development (BDD) y prácticas de arquitectura evolutiva.</p>
+          <div class="info">Se exponen artefactos trazables que evidencian cómo los escenarios BDD conducen, paso a paso, a decisiones arquitectónicas verificables aplicadas a una plataforma de publicaciones científicas.</div>
         </div>
 
         <div class="card span6">
@@ -141,6 +142,9 @@
         </div>
       </div>
     </section>
+
+    <!-- MARCO BDMA -->
+    <section id="marco"></section>
 
     <!-- REQUISITOS -->
     <section id="requisitos"></section>
@@ -171,22 +175,31 @@
 <script>
 /* ---------- Data (curada a partir de la Iteración 1) ---------- */
 const requisitos = {
-  contexto: "Plataforma distribuida para revistas y congresos científicos; soporte para ciclo de vida editorial con revisión por pares.",
+  contexto: "Una organización académica internacional quiere desarrollar una plataforma distribuida para la gestión integral de publicaciones científicas en revistas y congresos, abierta a investigadores de todo el mundo. La plataforma debe permitir a autores, revisores, editores y organizadores de eventos interactuar de manera asincrónica y conforme a reglas definidas por políticas editoriales dinámicas, garantizando escalabilidad y evolución controlada.",
   noFunc: [
     "Trazabilidad: escenarios ↔ comandos ↔ eventos ↔ contratos ↔ ADR",
     "Auditabilidad de acciones críticas (login, decisiones, emisiones)",
     "Evolución controlada de políticas y reglas editoriales",
-    "Integración segura con proveedores externos (ORCID, Scholar/Scopus, DOI)"
+    "Integración segura con proveedores externos (ORCID, Scholar/Scopus, DOI)",
+    "Escalabilidad del sistema para equipos distribuidos",
+    "Estabilidad general ante cambios en reglas editoriales"
   ],
   funcionales: [
     "Registro y autenticación de investigadores",
-    "Perfiles con afiliación, ORCID, áreas e indicadores",
-    "Envío y versionado; control de deadlines",
-    "Registro de revisores; conflictos; asignación auto/manual; revisión ciega simple",
+    "Perfiles con afiliación institucional, ORCID, áreas de interés y métricas de impacto",
+    "Envío de artículos a congresos o revistas científicas",
+    "Versionado de envíos y control de fechas límite",
+    "Registro de revisores con especialidades",
+    "Asignación automática y manual de revisores; revisión ciega simple o doble",
     "Historial de revisiones por artículo",
-    "Alta de venues (revistas/eventos) y reglas editoriales versionadas; roles",
-    "Métricas, reportes, exportaciones y boletines",
-    "Integración con ORCID, Scopus/Scholar y validación de DOI"
+    "Alta de revistas y eventos; configuración de reglas editoriales versionadas",
+    "Administración de editores y comités científicos",
+    "Emisión de cartas de aceptación y certificados automáticos",
+    "Generación de métricas por autor, artículo, evento y revista",
+    "Exportación a formatos estándar (CSV, JSON-LD, XML)",
+    "Notificaciones automáticas con resumen mensual personalizado",
+    "Sincronización con ORCID, Scopus y Google Scholar",
+    "Validación de DOI y metadatos para cada publicación"
   ]
 };
 
@@ -311,6 +324,10 @@ const trazabilidad = [
 /* --- BDD snippets (subset curado) --- */
 const bddBlocks = [
 { tag:"@registro-exitoso", feature:"Registro y autenticación de investigadores", text:`Feature: Registro y autenticación de investigadores
+  Como Investigador
+  Quiero registrarme y autenticarme
+  Para gestionar mis envíos y revisiones
+
   @registro-exitoso
   Scenario: Registro exitoso con ORCID y verificación de email
     Given existe el proveedor de identidad "ORCID"
@@ -319,66 +336,249 @@ const bddBlocks = [
     And confirma el email recibido
     Then la cuenta "ana@uni.edu" queda en estado "Activa"
     And el perfil se crea con ORCID vinculado`},
+
 { tag:"@autenticacion-ok", feature:"Registro y autenticación de investigadores", text:`@autenticacion-ok
 Scenario: Autenticación exitosa con credenciales válidas
   Given existe la cuenta "ana@uni.edu" en estado "Activa" con password "s3cret!"
   When intenta autenticarse con email "ana@uni.edu" y password "s3cret!"
   Then el acceso es concedido
   And se registra auditoría de inicio de sesión`},
+
 { tag:"@autenticacion-falla", feature:"Registro y autenticación de investigadores", text:`@autenticacion-falla
 Scenario: Autenticación rechazada por contraseña incorrecta
   Given existe la cuenta "ana@uni.edu" en estado "Activa" con password "s3cret!"
   When intenta autenticarse con email "ana@uni.edu" y password "wrong"
   Then el acceso es denegado por credenciales inválidas`},
+
 { tag:"@bloqueo", feature:"Registro y autenticación de investigadores", text:`@bloqueo
 Scenario: Bloqueo por múltiples intentos fallidos
   Given existe la cuenta "mike@uni.edu" en estado "Activa" con password "pass"
   When intenta autenticarse 5 veces con password incorrecto
   Then la cuenta "mike@uni.edu" queda en estado "Bloqueada"
   And se notifica al usuario por email`},
-{ tag:"@perfil-basico", feature:"Gestión de perfil de investigador", text:`@perfil-basico
-Scenario: Completar afiliación y áreas de interés
-  Given el Investigador "Ana" tiene un perfil inicial sin afiliación ni áreas
-  When actualiza afiliación a "Universidad X" y áreas ["IA", "NLP"]
-  Then el perfil de "Ana" muestra afiliación "Universidad X" y áreas ["IA", "NLP"]`},
+
+{ tag:"@perfil-basico", feature:"Gestión de perfil de investigador", text:`Feature: Gestión de perfil de investigador
+  Como Investigador
+  Quiero mantener mi perfil con afiliación, áreas y métricas
+  Para facilitar asignaciones y reportes
+
+  @perfil-basico
+  Scenario: Completar afiliación y áreas de interés
+    Given el Investigador "Ana" tiene un perfil inicial sin afiliación ni áreas
+    When actualiza afiliación a "Universidad X" y áreas ["IA", "NLP"]
+    Then el perfil de "Ana" muestra afiliación "Universidad X" y áreas ["IA", "NLP"]`},
+
 { tag:"@sincronizacion-metricas", feature:"Gestión de perfil de investigador", text:`@sincronizacion-metricas
 Scenario: Importar métricas desde ORCID/Google Scholar
   Given el perfil "Ana" tiene ORCID vinculado
-  When sincroniza métricas desde "Google Scholar"
-  Then el perfil exhibe métricas actualizadas con fuente "Google Scholar"`},
-{ tag:"@envio-evento", feature:"Envío y versionado de artículos", text:`@envio-evento
-Scenario: Envío válido a evento antes del deadline
-  Given existe el Evento "IC-2026" con fecha límite "2026-05-01"
-  When envío el Artículo "A-101" en fecha "2026-04-20"
-  Then se registra el Envío "E-1" en estado "Enviado" con versión 1`},
+  When sincroniza métricas de citaciones e índice-h desde "Google Scholar"
+  Then el perfil exhibe métricas actualizadas con fuente "Google Scholar" y fecha de actualización`},
+
+{ tag:"@envio-evento", feature:"Envío y versionado de artículos", text:`Feature: Envío y versionado de artículos
+  Como Autor
+  Quiero enviar y versionar artículos
+  Para postular a revistas y conferencias respetando deadlines
+
+  @envio-evento
+  Scenario: Envío válido a evento antes del deadline
+    Given existe el Evento "IC-2026" con fecha límite de envío "2026-05-01"
+    And soy Autor con perfil completo
+    When envío el Artículo "A-101" a "IC-2026" en fecha "2026-04-20"
+    Then se registra el Envío "E-1" en estado "Enviado" con versión 1
+    And recibo comprobante de envío con sello de tiempo`},
+
+{ tag:"@envio-revista", feature:"Envío y versionado de artículos", text:`@envio-revista
+Scenario: Envío válido a revista con revisión doble ciego
+  Given existe la Revista "SJ-ML" con tipo de revisión "Doble ciego"
+  And soy Autor con perfil completo
+  When envío el Artículo "A-202" a "SJ-ML" en fecha "2026-03-10"
+  Then se registra el Envío "E-2" en estado "Enviado" con versión 1
+  And se verifica que el archivo no contenga datos identificatorios`},
+
 { tag:"@deadline", feature:"Envío y versionado de artículos", text:`@deadline
 Scenario: Rechazo por envío fuera de fecha
-  Given existe el Evento "IC-2026" con fecha límite "2026-05-01"
-  When envío el Artículo "A-102" en fecha "2026-05-10"
-  Then el sistema rechaza el envío por deadline excedido`},
-{ tag:"@alta-revisor", feature:"Registro de revisores y especialidades", text:`@alta-revisor
-Scenario: Registro de revisor con especialidades
-  Given no existe el Revisor "r1"
-  When registro al Revisor "r1" con especialidades ["IA","NLP"]
-  Then el Revisor "r1" queda "Activo" con especialidades ["IA","NLP"]`},
-{ tag:"@auto-assign", feature:"Asignación de revisores", text:`@auto-assign
-Scenario: Asignación automática según especialidad y conflictos
-  Given existe el Envío "E-1" con tema "NLP"
-  And candidatos ["r1:IA","r2:SE","r3:NLP","r4:IA"]
-  And "r2" tiene conflicto con el Autor de "E-1"
-  And las reglas exigen "3" revisores
-  When ejecuto la asignación automática para "E-1"
-  Then quedan asignados 3 revisores sin conflictos`},
-{ tag:"@decision", feature:"Gestión editorial", text:`@decision
-Scenario: Registro de decisión editorial
-  Given existen revisiones suficientes
-  When registro la decisión "ACCEPT"
-  Then el envío queda actualizado y se habilita carta de aceptación`},
+  Given existe el Evento "IC-2026" con fecha límite de envío "2026-05-01"
+  And soy Autor con perfil completo
+  When envío el Artículo "A-102" a "IC-2026" en fecha "2026-05-10"
+  Then el sistema rechaza el envío por deadline excedido con motivo "Fecha límite superada"`},
+
+{ tag:"@versionado", feature:"Envío y versionado de artículos", text:`@versionado
+Scenario: Nuevo versionado de un envío en curso
+  Given existe el Envío "E-1" del Artículo "A-101" en estado "Enviado" y versión 1
+  When adjunto una nueva versión con cambios menores
+  Then el Envío "E-1" queda en versión 2
+  And el historial conserva versiones [1, 2]`},
+
+{ tag:"@alta-revisor", feature:"Registro de revisores y especialidades", text:`Feature: Registro de revisores y especialidades
+  Como Revisor
+  Quiero registrar mis especialidades y conflictos
+  Para recibir asignaciones apropiadas
+
+  @alta-revisor
+  Scenario: Registro de revisor con especialidades
+    Given no existe el Revisor "r1"
+    When registro al Revisor "r1" con especialidades ["IA", "NLP"]
+    Then el Revisor "r1" queda "Activo" con especialidades ["IA", "NLP"]`},
+
+{ tag:"@conflictos", feature:"Registro de revisores y especialidades", text:`@conflictos
+Scenario: Declaración de conflicto de interés
+  Given el Revisor "r1" está "Activo"
+  When declara conflicto con el Autor "Ana" por coautoría reciente
+  Then el conflicto queda registrado y bloquea asignaciones con "Ana" por 2 años`},
+
+{ tag:"@auto-assign", feature:"Asignación de revisores y manejo de ceguera", text:`Feature: Asignación de revisores y manejo de ceguera
+  Como Editor
+  Quiero asignar revisores automáticamente o manualmente
+  Para iniciar la evaluación cumpliendo reglas y anonimato
+
+  @auto-assign
+  Scenario: Asignación automática según especialidad y conflictos
+    Given existe el Envío "E-1" con tema "NLP"
+    And candidatos Revisores ["r1:IA", "r2:SE", "r3:NLP", "r4:IA"]
+    And el Revisor "r2" tiene conflicto con el Autor de "E-1"
+    And las reglas editoriales exigen "3" revisores
+    When ejecuto la asignación automática para "E-1"
+    Then quedan asignados 3 revisores especialistas sin conflictos
+    And el Autor no ve las identidades de los revisores
+    And los Revisores no ven la identidad ni afiliación del Autor`},
+
+{ tag:"@manual-assign", feature:"Asignación de revisores y manejo de ceguera", text:`@manual-assign
+Scenario: Asignación manual con validación de conflictos
+  Given existe el Envío "E-1" pendiente de asignación
+  And el Editor selecciona "r2", "r3" y "r4"
+  When confirma la asignación manual
+  Then el sistema impide asignar "r2" por conflicto registrado
+  And propone candidatos alternativos compatibles`},
+
+{ tag:"@ceguera-simple", feature:"Asignación de revisores y manejo de ceguera", text:`@ceguera-simple
+Scenario: Aplicación de ceguera simple en revista configurada
+  Given la Revista "SJ-DS" tiene tipo de revisión "Ciego simple"
+  And existe el Envío "E-3" a "SJ-DS"
+  When asigno revisores para "E-3"
+  Then los Revisores no ven la identidad del Autor
+  And el Autor puede ver las identidades de los Revisores solo después de la decisión final`},
+
+{ tag:"@aceptacion", feature:"Ciclo de revisión por pares", text:`Feature: Ciclo de revisión por pares
+  Como Revisor
+  Quiero aceptar/declinar invitaciones y cargar evaluaciones
+  Para contribuir a la decisión editorial
+
+  @aceptacion
+  Scenario: Revisor acepta invitación
+    Given el Revisor "r3" fue invitado a revisar el Envío "E-1"
+    When "r3" acepta la invitación dentro de 3 días
+    Then la asignación de "r3" pasa a estado "Aceptada"
+    And se habilita el formulario de revisión`},
+
+{ tag:"@declinacion", feature:"Ciclo de revisión por pares", text:`@declinacion
+Scenario: Revisor declina por conflicto sobrevenido
+  Given el Revisor "r3" fue invitado a revisar el Envío "E-1"
+  When "r3" declara conflicto y declina la invitación
+  Then su asignación pasa a "Declinada"
+  And se notifica al Editor para reasignación`},
+
+{ tag:"@entrega", feature:"Ciclo de revisión por pares", text:`@entrega
+Scenario: Entrega de revisión con recomendación
+  Given el Revisor "r3" tiene asignación "Aceptada" sobre "E-1"
+  When envía su revisión con recomendación "Mayor revisión"
+  Then la revisión queda registrada con sello de tiempo y versión
+  And el historial del Envío "E-1" muestra la revisión de "r3"`},
+
+{ tag:"@historial", feature:"Ciclo de revisión por pares", text:`@historial
+Scenario: Consulta del historial completo de revisiones por artículo
+  Given existen revisiones de "r1", "r3" y "r4" para el Envío "E-1"
+  When consulto el historial de revisiones de "E-1"
+  Then veo todas las revisiones con autores anónimos, fechas y recomendaciones`},
+
+{ tag:"@decision", feature:"Decisión editorial y comunicaciones", text:`Feature: Decisión editorial y comunicaciones
+  Como Editor
+  Quiero emitir decisiones y cartas
+  Para cerrar el proceso conforme a reglas
+
+  @decision
+  Scenario: Emisión de decisión basada en reglas y quorum
+    Given el Envío "E-1" tiene 3 revisiones con recomendaciones ["Aceptación", "Mayor revisión", "Aceptación"]
+    And las reglas exigen minRevisiones=3, quorum="2 de 3", umbral=">=Aceptación"
+    When calculo la decisión editorial para "E-1"
+    Then la decisión es "Aceptado condicional"
+    And se genera carta de decisión con condiciones y plantilla aprobada`},
+
+{ tag:"@aceptacion-final", feature:"Decisión editorial y comunicaciones", text:`@aceptacion-final
+Scenario: Emisión de certificado tras aceptación final
+  Given el Envío "E-1" está en estado "Aceptado"
+  And el Autor subió la versión final y transfirió copyright
+  When cierro el expediente editorial
+  Then se emite certificado de aceptación para el Autor
+  And se programa la publicación con fecha estimada`},
+
+{ tag:"@metricas-autor", feature:"Gestión de métricas e informes", text:`Feature: Gestión de métricas e informes
+  Como Analista
+  Quiero generar métricas y exportarlas
+  Para seguimiento por autor, artículo, evento y revista
+
+  @metricas-autor
+  Scenario: Métricas por autor y evento
+    Given existen envíos y decisiones históricas
+    When genero métricas para el Autor "Ana" en el Evento "IC-2026"
+    Then obtengo métricas {envios:2, aceptados:1, tasaAceptacion:"50%"} con periodo consultado`},
+
+{ tag:"@metricas-revista", feature:"Gestión de métricas e informes", text:`@metricas-revista
+Scenario: Métricas por revista
+  Given existen decisiones en la Revista "SJ-ML" durante 2026
+  When genero el informe de tasa de aceptación mensual para "SJ-ML"
+  Then obtengo una serie temporal con aceptación, tiempos de revisión y desviación estándar`},
+
+{ tag:"@export", feature:"Gestión de métricas e informes", text:`@export
+Scenario Outline: Exportación de reportes a formatos estándar
+  Given existe un reporte consolidado "R-1"
+  When exporto el reporte "R-1" en formato "<formato>"
+  Then descargo un archivo con extensión "<extension>" y esquema válido
+
+  Examples:
+    | formato | extension |
+    | CSV     | .csv      |
+    | JSON-LD | .jsonld   |
+    | XML     | .xml      |`},
+
+{ tag:"@boletin", feature:"Gestión de métricas e informes", text:`@boletin
+Scenario: Envío de notificación mensual personalizada
+  Given el Autor "Ana" está suscripto al resumen mensual
+  And existen métricas del último mes para "Ana"
+  When corre el job mensual
+  Then se envía un email a "Ana" con su resumen y enlaces a detalles`},
+
+{ tag:"@orcid", feature:"Integraciones externas y validación de metadatos", text:`Feature: Integraciones externas y validación de metadatos
+  Como Sistema
+  Quiero sincronizar perfiles y validar metadatos
+  Para mantener calidad e interoperabilidad
+
+  @orcid
+  Scenario: Sincronización de datos de perfil desde ORCID
+    Given el perfil "Ana" tiene ORCID vinculado
+    And existen cambios en ORCID para nombre y afiliación
+    When sincronizo datos desde ORCID
+    Then el perfil se actualiza preservando cambios locales confirmados
+    And se registra la fuente y fecha de sincronización`},
+
+{ tag:"@scopus-scholar", feature:"Integraciones externas y validación de metadatos", text:`@scopus-scholar
+Scenario: Importación de publicaciones desde Scopus y Google Scholar
+  Given el perfil "Ana" tiene identificadores válidos en Scopus y Google Scholar
+  When importo sus publicaciones recientes
+  Then las nuevas publicaciones se agregan como referencias con deduplicación por DOI`},
+
+{ tag:"@doi", feature:"Integraciones externas y validación de metadatos", text:`@doi
+Scenario: Validación de DOI y metadatos al registrar versión final
+  Given el Envío "E-1" está en versión final con DOI "10.1000/xyz123"
+  And los metadatos requeridos son {titulo, autores, afiliaciones, resumen, palabrasClave}
+  When valido el DOI y los metadatos
+  Then el DOI queda marcado "Válido" y los metadatos "Completos"
+  And el registro queda listo para indexación`}
 ];
 
 /* ---------- UI helpers ---------- */
 const tabs = [
   {id:"intro", label:"Resumen"},
+  {id:"marco", label:"Marco BDMA"},
   {id:"requisitos", label:"Requisitos"},
   {id:"bdd", label:"Escenarios BDD"},
   {id:"fase1", label:"Fase 1"},
@@ -414,6 +614,110 @@ function makeControls(onSearch){
   right.append(btn);
   div.append(left,right);
   return div;
+}
+
+function renderMarco(){
+  const sec=document.getElementById('marco'); sec.innerHTML='';
+  
+  // Propósito y principios
+  const grid1=document.createElement('div'); grid1.className='grid';
+  
+  const proposito=document.createElement('div'); proposito.className='card';
+  proposito.innerHTML=`
+    <h3>Propósito del Marco BDMA</h3>
+    <p class="muted">Proveer un marco metodológico sistemático y reproducible que guíe la identificación, diseño y evolución de arquitecturas de microservicios en contextos ágiles greenfield, a partir de la transformación iterativa y trazable de escenarios funcionales BDD en bounded contexts, contratos de servicio e interfaces verificables.</p>
+    <p class="muted">BDMA integra principios de Domain-Driven Design (DDD), técnicas de Behavior-Driven Development (BDD) y prácticas de arquitectura evolutiva, con el objetivo de alinear continuamente la especificación funcional del sistema con su arquitectura técnica.</p>
+  `;
+  
+  const principios=document.createElement('div'); principios.className='card';
+  principios.innerHTML=`
+    <h3>Principios Fundamentales</h3>
+    <ul class="muted">
+      <li><strong>Trazabilidad total:</strong> Cada servicio implementado debe poder rastrearse hasta uno o más escenarios BDD.</li>
+      <li><strong>Arquitectura emergente y evolutiva:</strong> El diseño se adapta iterativamente a la evolución de los escenarios.</li>
+      <li><strong>Diseño colaborativo:</strong> Las decisiones arquitectónicas se validan con expertos de dominio y técnicos.</li>
+      <li><strong>Lenguaje ubicuo:</strong> El vocabulario de los escenarios permea contratos y artefactos de diseño.</li>
+      <li><strong>Evidencia funcional continua:</strong> Las pruebas BDD son la validación activa de la arquitectura.</li>
+    </ul>
+  `;
+  
+  grid1.append(proposito, principios);
+  sec.appendChild(grid1);
+  
+  // Diferencial metodológico
+  const diferencial=document.createElement('div'); diferencial.className='card';
+  diferencial.innerHTML=`
+    <h3>Aporte: Diferencial Metodológico</h3>
+    <p class="muted">BDMA es un método iterativo que transforma requisitos funcionales en decisiones arquitectónicas verificables. A diferencia de enfoques previos, que suelen ser teóricos o centrados en contextos brownfield, BDMA:</p>
+    <div class="kpi">
+      <span class="pill">Define artefactos intermedios claros</span>
+      <span class="pill">Establece un flujo de fases aplicable en entornos ágiles reales</span>
+      <span class="pill">Garantiza trazabilidad y validación continua</span>
+      <span class="pill">Enfoque greenfield orientado a la práctica</span>
+    </div>
+    <div class="info">El marco no genera los escenarios BDD, sino que parte de un backlog funcional ya redactado y validado.</div>
+  `;
+  sec.appendChild(diferencial);
+  
+  // Proceso por fases
+  const proceso=document.createElement('div'); proceso.className='card';
+  proceso.innerHTML=`
+    <h3>Proceso Estructurado en 5 Fases</h3>
+    <table style="margin-top: 12px;">
+      <thead>
+        <tr><th>Fase</th><th>Concepto</th><th>Objetivo</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Fase 1</strong><br>Clasificación funcional</td>
+          <td>Arquitectura evolutiva alineada a features/epics</td>
+          <td>Organizar escenarios BDD en agrupaciones coherentes</td>
+        </tr>
+        <tr>
+          <td><strong>Fase 2</strong><br>Extracción de dominio</td>
+          <td>BDD para describir comportamiento y extraer elementos</td>
+          <td>Identificar actores, comandos, eventos y entidades</td>
+        </tr>
+        <tr>
+          <td><strong>Fase 3</strong><br>Bounded contexts</td>
+          <td>Context Map, delimitación DDD</td>
+          <td>Agrupar elementos en contextos coherentes y delimitados</td>
+        </tr>
+        <tr>
+          <td><strong>Fase 4</strong><br>Contratos API</td>
+          <td>Diseño contract-first y patrones de testabilidad</td>
+          <td>Traducir comandos/eventos en contratos verificables</td>
+        </tr>
+        <tr>
+          <td><strong>Fase 5</strong><br>Validación continua</td>
+          <td>ADR y evolución estructural</td>
+          <td>Garantizar evolución sincronizada y trazabilidad</td>
+        </tr>
+      </tbody>
+    </table>
+  `;
+  sec.appendChild(proceso);
+  
+  // Integración ágil
+  const agil=document.createElement('div'); agil.className='card';
+  agil.innerHTML=`
+    <h3>Integración con Ciclo Ágil</h3>
+    <p class="muted">BDMA no propone un enfoque secuencial cerrado, sino un marco que se integra incrementalmente al ciclo de vida ágil. En cada iteración (Sprint), se aplican las fases únicamente sobre los escenarios funcionales priorizados.</p>
+    <table style="margin-top: 12px;">
+      <thead>
+        <tr><th>Etapa del Sprint</th><th>Fase BDMA</th><th>Actividad</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Refinamiento del backlog</td><td>Fase 1</td><td>Agrupar nuevos escenarios BDD por feature/epic</td></tr>
+        <tr><td>Inicio del Sprint</td><td>Fase 2</td><td>Analizar escenarios priorizados, identificar comandos/eventos</td></tr>
+        <tr><td>Diseño técnico inicial</td><td>Fase 3</td><td>Ajustar límites de contextos si hay cambios relevantes</td></tr>
+        <tr><td>Implementación</td><td>Fase 4</td><td>Derivar contratos desde nuevos escenarios</td></tr>
+        <tr><td>Durante el Sprint</td><td>Fase 5</td><td>Ejecutar pruebas BDD, detectar impactos, registrar ADRs</td></tr>
+        <tr><td>Cierre/Revisión</td><td>Consolidación</td><td>Validar arquitectura, versionar Context Map</td></tr>
+      </tbody>
+    </table>
+  `;
+  sec.appendChild(agil);
 }
 
 function renderRequisitos(){
@@ -607,9 +911,10 @@ function renderFase5(){
 }
 
 /* ---------- Render all ---------- */
-function escapeHtml(s){ return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',\"'\":'&#39;'}[m])); }
+function escapeHtml(s){ return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'\"'":'&#39;'}[m])); }
 function init(){
   mountTabs();
+  renderMarco();
   renderRequisitos();
   renderBDD();
   renderFase1();

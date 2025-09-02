@@ -1,0 +1,105 @@
+Fase 2
+Salidas
+S1. Lista de comandos y eventos por contexto funcional
+Contexto	Comandos (When)	Eventos (Then)
+G01 Identity & Access	RegistrarCuenta, Autenticar, RegistrarIntentoFallido, BloquearCuenta	CuentaActivada, SesionIniciada (AccesoConcedido), AccesoDenegado, CuentaBloqueada
+G02 Profiles	ActualizarPerfil, SincronizarMetricas	PerfilActualizado, MetricasSincronizadas
+G03 Submissions	RegistrarEnvioEvento, RegistrarEnvioRevista, ValidarDeadline/IntentarRegistrarEnvio, AdjuntarVersion	EnvioRegistrado, EnvioRechazadoPorDeadline, VersionAdjuntada
+G04 Reviewing	RegistrarRevisor, DeclararConflicto, AsignarRevisoresAutomaticamente, AsignarRevisorManual, ConfigurarCeguera (flag), AceptarInvitacion, DeclinarInvitacion, RegistrarRevision, ConsultarHistorial (query)	RevisorRegistrado, ConflictoRegistrado, RevisoresAsignados, RevisorAsignadoManual, InvitacionAceptada, InvitacionDeclinada, RevisionRegistrada
+G05 Editorial Decisioning	CalcularDecisionEditorial, EmitirCertificado	DecisionEmitida, CertificadoEmitido, ExpedienteCerrado
+G06 Venue Management	CrearRevista, CrearEvento, PublicarReglas (versionado-reglas), AsignarRolesEditoriales	RevistaCreada, EventoCreado, ReglasPublicadas, RolesAsignados
+G07 Metrics & Reporting	GenerarMetricasAutor, GenerarMetricasRevista, ExportarDatos, EnviarBoletin	ReporteGenerado, ExportacionLista, BoletinEnviado
+G08 External Integrations	SincronizarORCID, ImportarDesdeScopusScholar, ValidarDOI, ValidarMetadatos	PerfilSincronizado, PublicacionesImportadas, DOIVerificado, MetadatosValidados
+
+S2. Mapa preliminar de relaciones entre entidades
+
+Entidad	Relaciones clave
+Investigador	tiene Cuenta; tiene Perfil; tiene (0..*) Métrica; puede actuar como Autor y/o Revisor
+Cuenta	pertenece a Investigador; estado: Activa/Bloqueada
+Perfil	pertenece a Investigador; incluye Afiliación, ORCID, ÁreasInterés
+Métrica	pertenece a Investigador; origen: ORCID/Scopus/Scholar
+Envío	pertenece a Autor(Investigador); se presenta a Venue(Revista
+VersiónDeEnvío	pertenece a Envío; puede tener DOI; tiene Metadatos
+Revista / Evento (Venue)	publica (1..*) ReglasVersión; tiene FechasClave; tiene Comité/Edición
+ReglasVersión	pertenece a Venue; inmutable; define nRevisores, tipoCeguera, umbralDecisión, ventanas
+Revisor	es Investigador; tiene (0..) Especialidad; declara (0..) ConflictoInteres
+InvitacionRevision	para Envío; dirigida a Revisor; estado Aceptada/Declinada
+Revisión	pertenece a Envío; realizada por Revisor; incluye recomendación, puntajes, comentarios
+Editor	emite Decisión para Envío; pertenece a RolesEditoriales
+DecisiónEditorial	consolida Revisiones; aplica ReglasVersión; resultado Aceptado/Rechazado
+Certificado	emitido para Envío(Aceptado); emitido por Editorial
+Reporte / Exportación / Boletín	consumen datos multi-contexto; referencian entidades y eventos
+IdentificadorExterno (ORCID, DOI)	vinculado a Perfil (ORCID) o VersiónDeEnvío (DOI)
+
+S3. Tabla de trazabilidad (escenario → comando, evento o actor)
+Escenario (S2)	Actor principal	Comando (When)	Evento (Then) / Resultado
+registro-exitoso	Investigador	RegistrarCuenta	CuentaActivada
+autenticacion-ok	Investigador	Autenticar	SesionIniciada (AccesoConcedido)
+autenticacion-falla	Investigador	Autenticar	AccesoDenegado (+ intento fallido)
+bloqueo	Sistema	BloquearCuenta	CuentaBloqueada
+perfil-basico	Investigador	ActualizarPerfil	PerfilActualizado
+sincronizacion-metricas	Sistema	SincronizarMetricas	MetricasSincronizadas
+envio-evento	Autor	RegistrarEnvioEvento	EnvioRegistrado
+envio-revista	Autor	RegistrarEnvioRevista	EnvioRegistrado
+deadline	Autor	IntentarRegistrarEnvio (fuera de ventana)	EnvioRechazadoPorDeadline
+versionado	Autor	AdjuntarVersion	VersionAdjuntada
+alta-revisor	Revisor	RegistrarRevisor	RevisorRegistrado
+conflictos	Revisor	DeclararConflicto	ConflictoRegistrado
+auto-assign	Editor/Sistema	AsignarRevisoresAutomaticamente	RevisoresAsignados
+manual-assign	Editor	AsignarRevisorManual	RevisorAsignadoManual
+ceguera-simple	Sistema	ConfigurarCeguera (atributo en asignación)	— (flag aplicado)
+aceptacion	Revisor	AceptarInvitacion	InvitacionAceptada
+declinacion	Revisor	DeclinarInvitacion	InvitacionDeclinada
+entrega	Revisor	RegistrarRevision	RevisionRegistrada
+historial	Editor	ConsultarHistorial	— (consulta)
+decision	Editor	CalcularDecisionEditorial	DecisionEmitida
+aceptacion-final	Sistema	EmitirCertificado	CertificadoEmitido; ExpedienteCerrado
+alta-revista	Admin Editorial	CrearRevista	RevistaCreada
+alta-evento	Admin Editorial	CrearEvento	EventoCreado
+versionado-reglas	Admin Editorial	PublicarReglas	ReglasPublicadas
+roles-editoriales	Admin Editorial	AsignarRolesEditoriales	RolesAsignados
+metricas-autor	Analista	GenerarMetricasAutor	ReporteGenerado
+metricas-revista	Analista	GenerarMetricasRevista	ReporteGenerado
+export	Analista	ExportarDatos	ExportacionLista
+boletin	Sistema	EnviarBoletin	BoletinEnviado
+orcid	Sistema	SincronizarORCID	PerfilSincronizado
+scopus-scholar	Sistema	ImportarDesdeScopusScholar	PublicacionesImportadas
+doi	Sistema	ValidarDOI	DOIVerificado
+
+
+Artefactos generados
+A1. Mapa de elementos del dominio por escenario
+Grupo funcional	Escenario	Actor	Comando (When)	Evento (Then)	Entidades (Given)
+G01 – Identity & Access	registro-exitoso	Investigador	RegistrarInvestigador	CuentaActivada	Cuenta(Investigador), ORCID, EmailVerificacion
+G01 – Identity & Access	autenticacion-ok	Investigador	IniciarSesion	SesionIniciada (AccesoConcedido)	Cuenta, Credenciales
+G01 – Identity & Access	autenticacion-falla	Investigador	IniciarSesion	AccesoDenegado	Cuenta, Credenciales
+G01 – Identity & Access	bloqueo	Sistema	BloquearCuenta	CuentaBloqueada	Cuenta, PoliticaSeguridad, IntentosFallidos
+G02 – Profiles	perfil-basico	Investigador	ActualizarPerfil	PerfilActualizado	Perfil, Afiliacion, AreasInteres, ORCID
+G02 – Profiles	sincronizacion-metricas	Sistema	SincronizarMetricas	MetricasSincronizadas	Perfil, FuenteMetricas(Scopus/Scholar), ORCID
+G03 – Submissions	envio-evento	Autor	RegistrarEnvioEvento	EnvioRegistrado	Envio, Autor, Evento, Version
+G03 – Submissions	envio-revista	Autor	RegistrarEnvioRevista	EnvioRegistrado	Envio, Autor, Revista, Version
+G03 – Submissions	deadline	Autor	RegistrarEnvio	EnvioRechazadoPorDeadline	Envio, ReglasEditoriales(version), FechaLimite
+G03 – Submissions	versionado	Autor	AdjuntarVersion	VersionAdjuntada	Envio, Version, Archivo, Metadatos
+G04 – Reviewing	alta-revisor	Revisor	RegistrarRevisor	RevisorRegistrado	Revisor, Especialidades, Afiliacion
+G04 – Reviewing	conflictos	Revisor	DeclararConflicto	ConflictoRegistrado	Revisor, Envio, Autor, RelacionConflicto
+G04 – Reviewing	auto-assign	Editor/Sistema	EjecutarAutoAsignacion	RevisoresAsignados	Envio, RequisitosRevision(n), Especialidades, Conflictos
+G04 – Reviewing	manual-assign	Editor	AsignarRevisorManual	RevisorAsignadoManual	Envio, Revisor, Editor
+G04 – Reviewing	ceguera-simple	Sistema	AplicarPoliticaCeguera	RevisoresAsignados (anonimizados)	Envio, PoliticaCeguera, Revisor, Autor
+G04 – Reviewing	aceptacion	Revisor	AceptarInvitacion	InvitacionAceptada	InvitacionRevision, Revisor, Envio
+G04 – Reviewing	declinacion	Revisor	RechazarInvitacion	InvitacionDeclinada	InvitacionRevision, Revisor, Envio
+G04 – Reviewing	entrega	Revisor	RegistrarRevision	RevisionRegistrada	Revision, Envio, Revisor, Recomendacion, Puntajes
+G04 – Reviewing	historial	Editor	ConsultarHistorialRevisiones	N/A (consulta)	Envio, Revisiones
+G05 – Editorial Decisioning	decision	Editor	CalcularDecisionEditorial	DecisionEmitida	Envio, Revisiones, PoliticasDecision(quorum/umbral)
+G05 – Editorial Decisioning	aceptacion-final	Sistema	EmitirCertificado	ExpedienteCerrado; CertificadoEmitido	Envio, Decision, DatosAutor
+G06 – Venue Management	alta-revista	Admin Editorial	CrearRevista	VenueCreado (tipo=Revista)	Revista, PoliticasIniciales, FechasClave
+G06 – Venue Management	alta-evento	Admin Editorial	CrearEvento	EventoCreado	Evento, PoliticasIniciales, FechasClave, Comite
+G06 – Venue Management	versionado-reglas	Admin Editorial	PublicarVersionReglas	ReglasPublicadas	Venue(Revista/Evento), VersionReglas, Fechas
+G06 – Venue Management	roles-editoriales	Admin Editorial	AsignarRolEditorial	RolesAsignados	Venue, Usuario, RolEditorial
+G07 – Metrics & Reporting	metricas-autor	Analista	GenerarMetricasAutor	ReporteGenerado	Autor, Envios, Revisiones, Decisiones
+G07 – Metrics & Reporting	metricas-revista	Analista	GenerarMetricasRevista	ReporteGenerado	Revista/Evento, Envios, Revisiones
+G07 – Metrics & Reporting	export	Analista	GenerarExportacion	ExportacionLista	Dataset, Formato(CSV/JSON LD/XML)
+G07 – Metrics & Reporting	boletin	Sistema	EnviarBoletin	BoletinEnviado	Suscriptor, Periodo, ResumenMetricas
+G08 – External Integrations	orcid	Sistema	SincronizarORCID	PerfilSincronizado	Perfil, ORCID
+G08 – External Integrations	scopus-scholar	Sistema	ImportarPublicaciones	PublicacionesImportadas	Perfil, CuentaExterna(Scopus/Scholar), PublicacionExterna
+G08 – External Integrations	doi	Sistema	ValidarDOI	DOIVerificado; MetadatosValidados	Publicacion, DOI, Metadatos
+

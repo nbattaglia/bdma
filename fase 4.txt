@@ -1,0 +1,94 @@
+Fase 4
+Salidas
+S1. Especificación de contratos API por contexto
+G	Contexto	Endpoint	Verbo	Request (campos clave)	Response (campos clave)	Códigos / Errores	Escenarios BDD
+G01	Identity & Access	/auth/register	POST	email, password, orcidId?	userId, estadoCuenta=ACTIVA	201; 400; 409	registro-exitoso
+G01	Identity & Access	/auth/login	POST	email, password	token, exp, userId	200; 401	autenticacion-ok, autenticacion-falla
+G01	Identity & Access	/auth/lockouts/evaluate	POST	userId	locked (bool), reason?	200; 423	bloqueo
+G02	Profiles	/profiles/{researcherId}	PUT	nombre, afiliacion, areas[], orcidId?	researcherId, actualizadoAt	200; 400; 404	perfil-basico
+G02	Profiles	/profiles/{researcherId}/metrics/sync	POST	fuentes[] (ORCID, SCHOLAR, SCOPUS)	hIndex, citas, actualizadasAt, fuente	200; 424	sincronizacion-metricas
+G03	Submissions	/venues/{venueId}/submissions	POST	titulo, autores[], tracks?, archivos[], submittedAt	submissionId, version=1, status=RECIBIDO	201; 422	envio-evento, deadline
+G03	Submissions	/journals/{journalId}/submissions	POST	titulo, autores[], archivos[]	submissionId, version=1, status=RECIBIDO	201	envio-revista
+G03	Submissions	/submissions/{submissionId}/versions	POST	archivos[], notes?	version++, estado=EN_REVISION	201; 409	versionado
+G04	Reviewing	/reviewers	POST	nombre, especialidades[], afiliacion	reviewerId	201; 400	alta-revisor
+G04	Reviewing	/reviewers/{reviewerId}/conflicts	POST	submissionId, tipo, descripcion	conflictId, registradoAt	201; 409	conflictos
+G04	Reviewing	/submissions/{submissionId}/assignments:auto	POST	nMin, ceguera=NONE/SIMPLE/DOUBLE	assignments[], blindPolicy	201; 409	auto-assign, ceguera-simple
+G04	Reviewing	/submissions/{submissionId}/assignments	POST	reviewerId, ceguera?	assignmentId, estado=INVITADO	201; 409	manual-assign, ceguera-simple
+G04	Reviewing	/assignments/{assignmentId}/accept	POST	—	assignmentId, estado=ACEPTADO	200; 409	aceptacion
+G04	Reviewing	/assignments/{assignmentId}/decline	POST	motivo?	assignmentId, estado=DECLINADO	200	declinacion
+G04	Reviewing	/submissions/{submissionId}/reviews	POST	assignmentId, recomendacion, comentarios	reviewId, registradaAt	201; 403	entrega
+G04	Reviewing	/submissions/{submissionId}/reviews	GET	estado?, reviewerId?	listaReviews[]	200	historial
+G05	Editorial Decisioning	/submissions/{submissionId}/decision	POST	decision (ACCEPT/REJECT), notas?	decisionId, quorumOk (bool)	201; 409	decision
+G05	Editorial Decisioning	/submissions/{submissionId}/acceptance-letter	POST	templateId?, locale?	urlCarta, emitidaAt	200; 409	aceptacion-final
+G06	Venue Management	/venues/journals	POST	nombre, scope, politicasIniciales	journalId	201; 409	alta-revista
+G06	Venue Management	/venues/conferences	POST	nombre, fechas {inicio, fin, deadline}, politicasIniciales	conferenceId	201; 409	alta-evento
+G06	Venue Management	/venues/{venueId}/rulesets	POST	version, reglas {nRevisoresMin, ceguera, umbral}, vigencia	rulesetId, version	201; 409	versionado-reglas
+G06	Venue Management	/venues/{venueId}/roles	POST	usuarioId, rol	roleId	201; 404	roles-editoriales
+G08	External Integrations	/integrations/orcid/sync	POST	researcherId, accessToken	perfil {orcidId, nombres}, sincronizadoAt	200; 424	orcid
+G08	External Integrations	/integrations/scholar-scopus/sync	POST	researcherId	metrics {hIndex, citas}, fuente	200; 424	scopus-scholar
+G08	External Integrations	/integrations/doi/validate	POST	doi, metadatos	valido (bool), issues[]	200; 422	doi
+
+S2. Trazabilidad documentada escenario - endpoint - prueba 
+
+G	Contexto	Escenario BDD	Endpoint	Prueba automatizada (nombre sugerido)
+G01	Identity & Access	registro-exitoso	POST /auth/register	Auth_Register_Success_201
+G01	Identity & Access	autenticacion-ok	POST /auth/login	Auth_Login_Success_200
+G01	Identity & Access	autenticacion-falla	POST /auth/login	Auth_Login_InvalidCreds_401
+G01	Identity & Access	bloqueo	POST /auth/lockouts/evaluate	Auth_Lockout_AfterNFail_423
+G02	Profiles	perfil-basico	PUT /profiles/{researcherId}	Profiles_UpdateBasic_200
+G02	Profiles	sincronizacion-metricas	POST /profiles/{researcherId}/metrics/sync	Profiles_MetricsSync_ORCID_OK
+G03	Submissions	envio-evento	POST /venues/{venueId}/submissions	Submissions_Register_WithinDeadline_201
+G03	Submissions	envio-revista	POST /journals/{journalId}/submissions	Submissions_RegisterJournal_201
+G03	Submissions	deadline	POST /venues/{venueId}/submissions	Submissions_Reject_AfterDeadline_422
+G03	Submissions	versionado	POST /submissions/{submissionId}/versions	Submissions_AttachVersion_201
+G04	Reviewing	alta-revisor	POST /reviewers	Reviewing_RegisterReviewer_201
+G04	Reviewing	conflictos	POST /reviewers/{reviewerId}/conflicts	Reviewing_RegisterConflict_201
+G04	Reviewing	auto-assign	POST /submissions/{submissionId}/assignments:auto	Reviewing_AutoAssign_MinN_201
+G04	Reviewing	manual-assign	POST /submissions/{submissionId}/assignments	Reviewing_ManualAssign_201
+G04	Reviewing	ceguera-simple	(flag en asignación) POST /submissions/{submissionId}/assignments	Reviewing_BlindnessPolicy_Enforced_200
+G04	Reviewing	aceptacion	POST /assignments/{assignmentId}/accept	Reviewing_InvitationAccept_200
+G04	Reviewing	declinacion	POST /assignments/{assignmentId}/decline	Reviewing_InvitationDecline_200
+G04	Reviewing	entrega	POST /submissions/{submissionId}/reviews	Reviewing_SubmitReview_201
+G04	Reviewing	historial	GET /submissions/{submissionId}/reviews	Reviewing_ListHistory_200
+G05	Editorial Decisioning	decision	POST /submissions/{submissionId}/decision	Decisioning_RecordDecision_201; Decisioning_RejectIfQuorumNotMet_409
+G05	Editorial Decisioning	aceptacion-final	POST /submissions/{submissionId}/acceptance-letter	Decisioning_IssueAcceptance_200
+G06	Venue Management	alta-revista	POST /venues/journals	Venue_CreateJournal_201
+G06	Venue Management	alta-evento	POST /venues/conferences	Venue_CreateConference_201
+G06	Venue Management	versionado-reglas	POST /venues/{venueId}/rulesets	Venue_PublishRuleset_201; Venue_RulesetImmutable_409
+G06	Venue Management	roles-editoriales	POST /venues/{venueId}/roles	Venue_AssignEditorialRoles_201
+G08	External Integrations	orcid	POST /integrations/orcid/sync	Integrations_ORCID_Sync_200
+G08	External Integrations	scopus-scholar	POST /integrations/scholar-scopus/sync	Integrations_Sources_Sync_200
+G08	External Integrations	doi	POST /integrations/doi/validate	Integrations_DOI_Validate_200; Integrations_DOI_Invalid_422
+
+
+
+Artefactos generados
+A1. •	Especificación de contratos API con trazabilidad funcional
+G	Contexto	Endpoint	Verbo	Comando / Evento	Escenario BDD	Observaciones
+G01	Identity & Access	/auth/register	POST	Cmd: RegistrarCuenta → Ev: CuentaActivada	registro-exitoso	IdP externo (ORCID/email); 201/409; idempotencia por email.
+G01	Identity & Access	/auth/login	POST	Cmd: Autenticar → Ev: SesionIniciada / AccesoDenegado	autenticacion-ok / autenticacion-falla	Devuelve JWT; 200/401; rate-limit.
+G01	Identity & Access	/auth/lock/{accountId}	POST	Cmd: BloquearCuenta → Ev: CuentaBloqueada	bloqueo	Solo sistema/seguridad; 202; auditoría.
+G01	Identity & Access	/auth/me	GET	Consulta identidad	(derivado de autenticacion-ok)	Requiere Bearer; 200.
+G02	Profiles	/profiles/{researcherId}	PUT	Cmd: ActualizarPerfil → Ev: PerfilActualizado	perfil-basico	Valida ORCID opcional; 200/400; control de propiedad.
+G02	Profiles	/profiles/{researcherId}/metrics:sync	POST	Cmd: SincronizarMetricas → Ev: MetricasSincronizadas	sincronizacion-metricas	Fuentes ORCID/Scopus/Scholar; 202 async; guarda fuente/fecha.
+G03	Submissions	/venues/{venueId}/submissions	POST	Cmd: RegistrarEnvio → Ev: EnvioRegistrado / EnvioRechazadoPorDeadline	envio-evento / envio-revista / deadline	Valida reglas versionadas; 201 o 422 (deadline).
+G03	Submissions	/submissions/{submissionId}/versions	POST	Cmd: AdjuntarVersion → Ev: VersionAdjuntada	versionado	Historial de versiones; 201; checksum.
+G03	Submissions	/submissions/{submissionId}	GET	Consulta envío	(apoya reviewing/decision)	Incluye versión activa y estado; 200.
+G04	Reviewing	/reviewers	POST	Cmd: RegistrarRevisor → Ev: RevisorRegistrado	alta-revisor	Registra especialidades; 201.
+G04	Reviewing	/reviewers/{id}/conflicts	POST	Cmd: DeclararConflicto → Ev: ConflictoRegistrado	conflictos	Afecta matching; 201.
+G04	Reviewing	/submissions/{submissionId}/assignments:auto	POST	Cmd: AsignarRevisoresAuto → Ev: RevisoresAsignados	auto-assign	Usa políticas (n, ceguera); 202; determinística por seed.
+G04	Reviewing	/submissions/{submissionId}/assignments	POST	Cmd: AsignarRevisorManual → Ev: RevisorAsignadoManual	manual-assign	Auditoría obligatoria; 201.
+G04	Reviewing	/assignments/{assignmentId}/accept	POST	Cmd: AceptarInvitacion → Ev: InvitacionAceptada	aceptacion	200; expira por fecha límite.
+G04	Reviewing	/assignments/{assignmentId}/decline	POST	Cmd: DeclinarInvitacion → Ev: InvitacionDeclinada	declinacion	200; disparar reasignación.
+G04	Reviewing	/reviews	POST	Cmd: RegistrarRevision → Ev: RevisionRegistrada	entrega	Adjunta recomendación/score; ceguera por política; 201.
+G04	Reviewing	/submissions/{submissionId}/reviews	GET	Consulta historial	historial	Solo editor/autorizados; ocultar identidades según ceguera; 200.
+G05	Editorial Decisioning	/submissions/{submissionId}/decision	POST	Cmd: EmitirDecision → Ev: DecisionEmitida	decision	Aplica quórum/umbral; registra versión de reglas; 200.
+G05	Editorial Decisioning	/submissions/{submissionId}/acceptance-letter	POST	Cmd: EmitirCertificado → Ev: CertificadoEmitido	aceptacion-final	Genera carta/certificado; 201; repositorio de docs.
+G06	Venue Management	/venues	POST	Cmd: CrearVenue → Ev: VenueCreado	alta-revista / alta-evento	Tipo={revista,event}; 201.
+G06	Venue Management	/venues/{venueId}/policies	POST	Cmd: PublicarReglas → Ev: ReglasPublicadas	versionado-reglas	Inmutable por versión; 201; fecha de vigencia.
+G06	Venue Management	/venues/{venueId}/roles	POST	Cmd: AsignarRoles → Ev: RolesAsignados	roles-editoriales	Asigna editores/comités; 201.
+G07	Metrics & Reporting	/reports/authors	GET	Consulta KPIs autor → Ev: (ReporteGenerado)	metricas-autor	Params authorId, periodo; 200; cacheable.
+G07	Metrics & Reporting	/reports/venues	GET	Consulta KPIs venue → Ev: (ReporteGenerado)	metricas-revista	Params venueId, periodo; 200.
+G07	Metrics & Reporting	/exports	POST	Cmd: GenerarExportacion → Ev: ExportacionLista	export	CSV/JSON-LD/XML; 202 async + URL descarga/callback.
+G07	Metrics & Reporting	/digests/monthly	POST	Cmd: EnviarBoletin → Ev: BoletinEnviado	boletin	Idempotencia por periodo+destinatario; 202.
+

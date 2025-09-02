@@ -1,0 +1,26 @@
+Contexto general
+Una organización académica internacional quiere desarrollar una plataforma distribuida para la gestión integral de publicaciones científicas en revistas y congresos, abierta a investigadores de todo el mundo. La plataforma debe permitir a autores, revisores, editores y organizadores de eventos interactuar de manera asincrónica y conforme a reglas definidas por políticas editoriales dinámicas.
+La organización está interesada en garantizar la escalabilidad del sistema, facilitar la evolución de las reglas editoriales sin afectar la estabilidad general y permitir que equipos de desarrollo distribuidos trabajen sobre distintas partes del sistema.
+Requisitos funcionales
+1.	Gestión de autores y publicaciones
+o	Registro y autenticación de investigadores.
+o	Creación de perfiles con afiliación institucional, ORCID, áreas de interés y métricas de impacto.
+o	Envío de artículos a congresos o revistas científicas.
+o	Versionado de envíos y control de fechas límite.
+2.	Gestión de revisiones
+o	Registro de revisores con sus especialidades.
+o	Asignación automática y manual de revisores por parte de los editores.
+o	Revisión ciega simple o doble.
+o	Historial de revisiones por artículo.
+3.	Gestión editorial y de conferencias
+o	Alta de nuevas revistas y eventos científicos.
+o	Configuración de reglas editoriales (cantidad de revisores, fechas clave, criterios de aceptación, tipo de revisión).
+o	Administración de editores y comités científicos.
+o	Emisión de cartas de aceptación y certificados automáticos.
+4.	Gestión de métricas e informes
+o	Generación de métricas por autor, artículo, evento y revista.
+o	Exportación de datos a formatos estándar (CSV, JSON-LD, XML).
+o	Envío de notificaciones automáticas con resumen mensual personalizado.
+5.	Integraciones externas
+o	Sincronización de datos con ORCID, Scopus y Google Scholar.
+o	Validación de DOI y metadatos para cada publicación.

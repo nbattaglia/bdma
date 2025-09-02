@@ -1,0 +1,52 @@
+Fase 1
+Salidas
+S1. Grupos funcionales de escenarios candidatos a bounded contexts iniciales
+idGrupo	nombre	proposito	criteriosAgrupacion	escenarios	actoresDominantes	dependenciasPoliticas	eventosClaveCandidatos	responsable	fecha	version
+G01	Identity & Access	Alta y autenticación de investigadores; control de acceso y bloqueo	Seguridad, credenciales, IdP externo	registro-exitoso, autenticacion-ok, autenticacion-falla, bloqueo	Investigador	No	CuentaActivada, CuentaBloqueada, AccesoConcedido, AccesoDenegado	Arquitectura	-	v1
+G02	Profiles	Gestión de perfil, afiliación, áreas y métricas de impacto	Datos personales extendidos; insumo para asignación	perfil-basico, sincronizacion-metricas	Investigador	No	PerfilActualizado, MetricasSincronizadas	Arquitectura	-	v1
+G03	Submissions	Ciclo de vida del envío y versionado, validar deadline	Transacciones sobre Envío; validación temporal/política	envio-evento, envio-revista, deadline, versionado	Autor	Sí (reglas y fechas por venue)	EnvioRegistrado, EnvioRechazadoPorDeadline, VersionAdjuntada	Arquitectura	-	v1
+G04	Reviewing	Alta de revisores, conflictos, asignación y carga de revisiones	Matching por especialidad, conflictos, flujo de invitación	alta-revisor, conflictos, auto-assign, manual-assign, ceguera-simple, aceptacion, declinacion, entrega, historial	Revisor, Editor	Sí (tipo de ceguera, cantidad mínima)	RevisorRegistrado, ConflictoRegistrado, RevisoresAsignados, InvitacionAceptada, InvitacionDeclinada, RevisionRegistrada	Arquitectura	-	v1
+G05	Editorial Decisioning	Cálculo de decisión con reglas/quórum y emisión de cartas	Consolidación de revisiones + políticas de decisión	decision, aceptacion-final	Editor	Sí (quórum/umbral)	DecisionEmitida, CertificadoEmitido	Arquitectura	-	v1
+G06	Venue Management	Alta de revistas/eventos y publicación versionada de reglas	Gobierno de políticas y fechas clave	alta-revista, alta-evento, versionado-reglas, roles-editoriales	Administrador Editorial	N/A (fuente de políticas)	ReglasPublicadas, VenueCreado, RolesAsignados	Arquitectura	-	v1
+G07	Metrics & Reporting	KPIs, exportaciones y boletines	Consultas y outputs analíticos	metricas-autor, metricas-revista, export, boletin	Analista, Sistema	No	ReporteGenerado, ExportacionLista, BoletinEnviado	Arquitectura	-	v1
+G08	External Integrations	Sincronización con ORCID/Scopus/Scholar y validación de DOI	Integración y normalización externa	orcid, scopus-scholar, doi	Sistema	No	PerfilSincronizado, PublicacionesImportadas, DOIVerificado, MetadatosValidados	Arquitectura	-	v1
+
+S2. Tabla de trazabilidad
+epicProceso	escenarioBDD	actorPrincipal	propositoEscenario	grupoAsignado	notas
+Identity & Access	registro-exitoso	Investigador	Alta de cuenta y activación vía ORCID/email	G01 – Identity & Access	IdP externo, verificación de email
+Identity & Access	autenticacion-ok	Investigador	Iniciar sesión correctamente	G01 – Identity & Access	Emite token / SesionIniciada
+Identity & Access	autenticacion-falla	Investigador	Rechazar acceso por credenciales inválidas	G01 – Identity & Access	Registra intento fallido
+Identity & Access	bloqueo	Sistema	Bloquear cuenta tras intentos fallidos	G01 – Identity & Access	Política de seguridad
+Profiles	perfil-basico	Investigador	Completar/editar perfil, afiliación y áreas	G02 – Profiles	Aporta datos a asignación
+Profiles	sincronizacion-metricas	Sistema	Sincronizar métricas (h-index, citas)	G02 – Profiles	Guardar fuente/fecha
+Submissions	envio-evento	Autor	Registrar envío a conferencia dentro de fecha	G03 – Submissions	Valida políticas y ventana
+Submissions	envio-revista	Autor	Registrar envío a revista	G03 – Submissions	Similar a evento; distinta política
+Submissions	deadline	Autor	Rechazar envío fuera de fecha	G03 – Submissions	Versión de reglas inmutable
+Submissions	versionado	Autor	Adjuntar/crear nueva versión del envío	G03 – Submissions	Mantiene historial de versiones
+Reviewing	alta-revisor	Revisor	Registrar revisor y especialidades	G04 – Reviewing	Base para matching
+Reviewing	conflictos	Revisor	Declarar conflicto de interés	G04 – Reviewing	Afecta asignación
+Reviewing	auto-assign	Editor/Sistema	Asignación automática por especialidad y reglas	G04 – Reviewing	Requiere nRevisores de políticas
+Reviewing	manual-assign	Editor	Asignación manual de revisor	G04 – Reviewing	Traza auditoría
+Reviewing	ceguera-simple	Sistema	Aplicar anonimización según política	G04 – Reviewing	Atributo en eventos de asignación
+Reviewing	aceptacion	Revisor	Aceptar invitación a revisar	G04 – Reviewing	Estado de invitación
+Reviewing	declinacion	Revisor	Declinar invitación a revisar	G04 – Reviewing	Estado de invitación
+Reviewing	entrega	Revisor	Cargar revisión con recomendación	G04 – Reviewing	Enlaza a envío
+Reviewing	historial	Editor	Consultar historial de revisiones	G04 – Reviewing	Consulta (sin evento)
+Editorial Decisioning	decision	Editor	Calcular y registrar decisión editorial	G05 – Editorial Decisioning	Usa quórum/umbral
+Editorial Decisioning	aceptacion-final	Sistema	Emitir carta/certificado y cerrar expediente	G05 – Editorial Decisioning	Certificado + ExpedienteCerrado
+Venue Management	alta-revista	Admin Editorial	Crear revista con reglas iniciales	G06 – Venue Management	Fuente de políticas
+Venue Management	alta-evento	Admin Editorial	Crear evento con reglas y fechas	G06 – Venue Management	EventoCreado
+Venue Management	versionado-reglas	Admin			
+
+
+Artefactos generados
+nombre	escenarios	actorPrincipal	eventosClave (revisados)	notas
+Submissions	envio-evento, envio-revista, deadline, versionado	Autor	EnvioRegistrado; EnvioRechazadoPorDeadline; VersionAdjuntada	Depende de políticas (fechas/tipo revisión); fuente de eventos para Reviewing/Decisioning
+Reviewing	alta-revisor, conflictos, auto-assign, manual-assign, ceguera-simple, aceptacion, declinacion, entrega, historial	Revisor / Editor	RevisorRegistrado; ConflictoRegistrado; RevisoresAsignados; RevisorAsignadoManual; InvitacionAceptada; InvitacionDeclinada; RevisionRegistrada	Ceguera: modelar como atributo/flag en eventos de asignación (no evento propio). historial es consulta
+Editorial Decisioning	decision, aceptacion-final	Editor	DecisionEmitida; ExpedienteCerrado; CertificadoEmitido	Consolida revisiones + reglas (quórum/umbral); readiness para DOI/publicación
+Venue Management	alta-revista, alta-evento, versionado-reglas, roles-editoriales	Administrador Editorial	VenueCreado; EventoCreado; ReglasPublicadas; RolesAsignados	Fuente de verdad de políticas inmutables por versión
+Identity & Access	registro-exitoso, autenticacion-ok, autenticacion-falla, bloqueo	Investigador	CuentaActivada; SesionIniciada; AccesoDenegado; CuentaBloqueada	SesionIniciada puede exponerse también como AccesoConcedido/TokenEmitido (alias)
+Profiles	perfil-basico, sincronizacion-metricas	Investigador	PerfilActualizado; MetricasSincronizadas	Aporta afiliación/áreas a asignación; guarda fuente/fecha de métricas
+Metrics & Reporting	metricas-autor, metricas-revista, export, boletin	Analista / Sistema	ReporteGenerado; ExportacionLista; BoletinEnviado	Consume eventos de varios contextos
+External Integrations	orcid, scopus-scholar, doi	Sistema	PerfilSincronizado; PublicacionesImportadas; DOIVerificado; MetadatosValidados	Normaliza/valida datos externos
+

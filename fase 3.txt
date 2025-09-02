@@ -1,0 +1,82 @@
+Fase 3
+Salidas
+S1. Mapa formal de bounded contexts
+Bounded Context	Responsabilidad principal	Comandos	Eventos	Entidades
+BC01 – Identity & Access	Gestión de identidad, autenticación y autorización	RegistrarInvestigador, IniciarSesion, BloquearCuenta	CuentaActivada, SesionIniciada, AccesoDenegado, CuentaBloqueada	Cuenta, Credenciales, PoliticaSeguridad
+BC02 – Profiles	Gestión de perfil, afiliación y métricas del investigador	ActualizarPerfil, SincronizarMetricas	PerfilActualizado, MetricasSincronizadas	Perfil, Afiliacion, AreasInteres, FuenteMetricas
+BC03 – Submissions	Registro y gestión de envíos a revistas o eventos	RegistrarEnvioEvento, RegistrarEnvioRevista, RegistrarEnvio, AdjuntarVersion	EnvioRegistrado, EnvioRechazadoPorDeadline, VersionAdjuntada	Envio, Version, Archivo, PoliticaEditorial
+BC04 – Reviewing	Gestión de revisores, conflictos, asignaciones y revisiones	RegistrarRevisor, DeclararConflicto, EjecutarAutoAsignacion, AsignarRevisorManual, AceptarInvitacion, RechazarInvitacion, RegistrarRevision	RevisorRegistrado, ConflictoRegistrado, RevisoresAsignados, RevisorAsignadoManual, InvitacionAceptada, InvitacionDeclinada, RevisionRegistrada	Revisor, InvitacionRevision, Revision, PoliticasAsignacion
+BC05 – Editorial Decisioning	Cálculo y registro de decisiones editoriales, cierre de expediente, emisión de certificados	CalcularDecisionEditorial, EmitirCertificado	DecisionEmitida, ExpedienteCerrado, CertificadoEmitido	PoliticasDecision, Certificado, Expediente
+BC06 – Venue Management	Creación y mantenimiento de revistas y eventos, publicación de reglas, asignación de roles editoriales	CrearRevista, CrearEvento, PublicarVersionReglas, AsignarRolEditorial	VenueCreado, EventoCreado, ReglasPublicadas, RolesAsignados	Revista, Evento, VersionReglas, RolEditorial
+BC07 – Metrics & Reporting	Generación de métricas, reportes y boletines	GenerarMetricasAutor, GenerarMetricasRevista, GenerarExportacion, EnviarBoletin	ReporteGenerado, ExportacionLista, BoletinEnviado	Reporte, Formato, Filtro, Periodo
+BC08 – External Integrations	Integración con ORCID, Scopus/Scholar y DOI	SincronizarORCID, ImportarPublicaciones, ValidarDOI	PerfilSincronizado, PublicacionesImportadas, DOIVerificado, MetadatosValidados	FuenteExterna, Publicacion, DOI, Metadatos
+
+S2. Mapa de interacciones entre contextos
+
+Contexto Origen	Contexto Destino	Tipo de relación	Medio de interacción	Notas
+BC01 – Identity & Access	Todos	OHS (Open Host Service)	API Auth + JWT	Suministra identidad y claims
+BC02 – Profiles	BC04 – Reviewing	ACL (Anti-Corruption Layer)	API interna	Filtra/transforma datos de perfil
+BC03 – Submissions	BC04 – Reviewing	Event Publisher / Partnership	Mensajería/eventos	Dispara asignaciones al publicar envío
+BC03 – Submissions	BC05 – Editorial Decisioning	Event Publisher / Partnership	Mensajería/eventos	Dispara proceso de decisión
+BC04 – Reviewing	BC05 – Editorial Decisioning	Event Publisher	Mensajería/eventos	Dispara proceso de decisión al cerrar revisiones
+BC05 – Editorial Decisioning	BC03 – Submissions	Event Subscriber	Mensajería/eventos	Marca envío como aceptado/rechazado
+BC06 – Venue Management	BC03 – Submissions, BC04 – Reviewing, BC05 – Editorial Decisioning	OHS + Event Publisher	API y eventos	Publica reglas versionadas
+BC07 – Metrics & Reporting	Todos	Conformist	Lectura directa de proyecciones	No altera dominio
+BC08 – External Integrations	BC01 – Identity & Access, BC02 – Profiles, BC03 – Submissions	ACL	Adaptadores de datos externos	Normaliza y valida datos de terceros
+
+S3. Declaración de reglas de interacción (eventos compartidos, ACL, contratos esperados). La comunicación debe ser explicita, controlada (sin acoplamientos indeseados) y mantenible
+•	Eventos compartidos clave:
+o	EnvioRegistrado (BC03) → BC04, BC05
+o	RevisionRegistrada (BC04) → BC05
+o	DecisionEmitida (BC05) → BC03
+o	ReglasPublicadas (BC06) → BC03, BC04, BC05
+o	PerfilSincronizado (BC08) → BC02
+o	PublicacionesImportadas (BC08) → BC02, BC03
+•	Contratos API esperados:
+o	BC01 expone Auth API (login/registro)
+o	BC06 expone API de reglas y roles
+o	BC02 expone API de perfil resumido (solo lectura para otros contextos)
+•	Comunicación explícita:
+o	Mensajería asíncrona para eventos de dominio inter-contexto
+o	ACL en integraciones externas para evitar acoplamiento semántico
+
+
+Artefactos generados
+A1. Mapa formal de bounded contexts
+Contexto	Comandos	Eventos	Entidades	Contrato API requerido	Notas
+BC01 – Identity & Access	RegistrarInvestigador, IniciarSesion, BloquearCuenta	CuentaActivada, SesionIniciada, AccesoDenegado, CuentaBloqueada	Cuenta, Credenciales, PoliticaSeguridad	Sí	JWT + claims estándar
+BC02 – Profiles	ActualizarPerfil, SincronizarMetricas	PerfilActualizado, MetricasSincronizadas	Perfil, Afiliacion, AreasInteres, FuenteMetricas	Sí (lectura)	API solo lectura para BC04
+BC03 – Submissions	RegistrarEnvioEvento, RegistrarEnvioRevista, RegistrarEnvio, AdjuntarVersion	EnvioRegistrado, EnvioRechazadoPorDeadline, VersionAdjuntada	Envio, Version, Archivo, PoliticaEditorial	No (eventos)	
+BC04 – Reviewing	RegistrarRevisor, DeclararConflicto, EjecutarAutoAsignacion, AsignarRevisorManual, AceptarInvitacion, RechazarInvitacion, RegistrarRevision	RevisorRegistrado, ConflictoRegistrado, RevisoresAsignados, RevisorAsignadoManual, InvitacionAceptada, InvitacionDeclinada, RevisionRegistrada	Revisor, InvitacionRevision, Revision, PoliticasAsignacion	No (eventos)	
+BC05 – Editorial Decisioning	CalcularDecisionEditorial, EmitirCertificado	DecisionEmitida, ExpedienteCerrado, CertificadoEmitido	PoliticasDecision, Certificado, Expediente	No (eventos)	
+BC06 – Venue Management	CrearRevista, CrearEvento, PublicarVersionReglas, AsignarRolEditorial	VenueCreado, EventoCreado, ReglasPublicadas, RolesAsignados	Revista, Evento, VersionReglas, RolEditorial	Sí	API de reglas y roles
+BC07 – Metrics & Reporting	GenerarMetricasAutor, GenerarMetricasRevista, GenerarExportacion, EnviarBoletin	ReporteGenerado, ExportacionLista, BoletinEnviado	Reporte, Formato, Filtro, Periodo	No	Solo consumo de proyecciones
+BC08 – External Integrations	SincronizarORCID, ImportarPublicaciones, ValidarDOI	PerfilSincronizado, PublicacionesImportadas, DOIVerificado, MetadatosValidados	FuenteExterna, Publicacion, DOI, Metadatos	No	Requiere ACL
+
+A2. Mapa de interacciones entre contextos
+
+Contexto Origen	Contexto Destino	Tipo de relación	Medio de interacción	Notas
+BC01 – Identity & Access	Todos	OHS (Open Host Service)	REST (OAuth2/JWT)	Emite tokens y claims; hard dependency de front y back.
+BC02 – Profiles	BC04 – Reviewing	ACL (el consumidor adapta)	REST (perfil resumido)	Reviewing consume datos de perfil sin acoplarse al modelo interno.
+BC03 – Submissions	BC04 – Reviewing	Partnership + Event Publisher	Eventos (EnvioRegistrado, VersionAdjuntada)	El alta/actualización de envíos dispara asignaciones.
+BC03 – Submissions	BC05 – Editorial Decisioning	Event Publisher	Eventos (EnvioRegistrado)	Inicia el flujo de decisión por expediente.
+BC04 – Reviewing	BC05 – Editorial Decisioning	Event Publisher	Eventos (RevisionRegistrada, InvitacionAceptada/Declinada)	Cambios en revisiones impactan decisión.
+BC05 – Editorial Decisioning	BC03 – Submissions	Event Publisher	Evento (DecisionEmitida)	Cierra expediente y marca envío aceptado/rechazado.
+BC06 – Venue Management	BC03 – Submissions	OHS + Event Publisher	REST (reglas), Eventos (ReglasPublicadas)	Submissions consulta reglas versionadas y se actualiza ante cambios.
+BC06 – Venue Management	BC04 – Reviewing	OHS + Event Publisher	REST (reglas), Eventos	Define ceguera, n° revisores, ventanas.
+BC06 – Venue Management	BC05 – Editorial Decisioning	OHS + Event Publisher	REST (reglas), Eventos	Define umbrales/quórum de decisión.
+BC07 – Metrics & Reporting	Todos	Conformist (solo lectura)	Lectura de proyecciones/almacén analítico	No altera dominios; consume proyecciones/eventos.
+BC08 – External Integrations	BC02 – Profiles	ACL	Adaptadores (ORCID/Scholar/Scopus)	Normaliza perfiles/métricas externas.
+BC08 – External Integrations	BC03 – Submissions	ACL	Adaptadores + validación DOI	Verifica DOI/Metadatos y puede importar publicaciones.
+
+A2. Identificación de contextos que requieren contratos API
+Contexto	¿Consumido por otros? (API sync)	¿Publica eventos?	Tipo de contrato requerido en F4	Consumidores principales
+BC01 – Identity & Access	Sí	No	REST (Auth, OAuth2/JWT)	Todos (front, gateways, servicios)
+BC02 – Profiles	Sí (solo lectura)	Sí (PerfilActualizado, MetricasSincronizadas)	REST (read-only) + Esquemas de eventos	BC04 (Reviewing), UI
+BC03 – Submissions	No (principalmente asíncrono)	Sí (EnvioRegistrado, VersionAdjuntada, EnvioRechazadoPorDeadline)	Esquemas de eventos	BC04, BC05, BC07
+BC04 – Reviewing	No (principalmente asíncrono)	Sí (RevisoresAsignados, RevisionRegistrada, etc.)	Esquemas de eventos	BC05, BC07
+BC05 – Editorial Decisioning	No (asíncrono)	Sí (DecisionEmitida, ExpedienteCerrado)	Esquemas de eventos	BC03, BC07
+BC06 – Venue Management	Sí	Sí (ReglasPublicadas)	REST (reglas/roles) + Esquemas de eventos	BC03, BC04, BC05, UI
+BC07 – Metrics & Reporting	Opcional (descargas/export)	Sí (ReporteGenerado, ExportacionLista)	REST opcional (descarga/export) + Esquemas de eventos	UI, integraciones BI
+BC08 – External Integrations	No (actúa como cliente)	Sí (PerfilSincronizado, PublicacionesImportadas, DOIVerificado)	Esquemas de eventos 	BC02, BC03, BC07
+

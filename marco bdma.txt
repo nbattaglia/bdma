@@ -1,0 +1,204 @@
+BDMA v6
+Propósito
+Proveer un marco metodológico sistemático y reproducible que guíe la identificación, diseño y evolución de arquitecturas de microservicios en contextos ágiles greenfield, a partir de la transformación iterativa y trazable de escenarios funcionales BDD en bounded contexts, contratos de servicio e interfaces verificables.
+BDMA integra principios de Domain-Driven Design (DDD), técnicas de Behavior-Driven Development (BDD) y prácticas de arquitectura evolutiva, con el objetivo de alinear continuamente la especificación funcional del sistema con su arquitectura técnica, facilitando la toma de decisiones colaborativa, la documentación estructurada y la adaptación incremental frente al cambio.
+Principios
+•	Trazabilidad total: Cada servicio implementado debe poder rastrearse hasta uno o más escenarios BDD.
+•	Arquitectura emergente y evolutiva: El diseño se adapta iterativamente a la evolución de los escenarios.
+•	Diseño colaborativo: Las decisiones arquitectónicas se validan con expertos de dominio y técnicos.
+•	Lenguaje ubicuo: El vocabulario de los escenarios permea contratos y artefactos de diseño.
+•	Evidencia funcional continua: Las pruebas BDD son la validación activa de la arquitectura.
+Aporte: Diferencial metodológico
+BDMA es un método iterativo que transforma requisitos funcionales en decisiones arquitectónicas verificables. A diferencia de enfoques previos, que suelen ser teóricos o centrados en contextos brownfield, BDMA:
+•	Define artefactos intermedios claros.
+•	Establece un flujo de fases aplicable en entornos ágiles reales.
+•	Garantiza trazabilidad y validación continua.
+El marco no genera los escenarios BDD, sino que parte de un backlog funcional ya redactado y validado.
+
+El aporte central de esta tesis es la construcción de Behavior-Driven Microservice Architecture (BDMA), un método sistemático, iterativo y reproducible que guía la identificación, diseño y evolución de arquitecturas de microservicios en proyectos ágiles greenfield, partiendo de escenarios funcionales BDD validados.
+A diferencia de los enfoques existentes, que se enfocan mayoritariamente en procesos de reingeniería (brownfield), recomendaciones teóricas o lineamientos poco operativos, BDMA propone un proceso estructurado por fases, con actividades concretas, artefactos intermedios definidos y mecanismos de trazabilidad que permiten transformar requisitos funcionales en decisiones arquitectónicas verificables.
+Su diseño metodológico integra y operacionaliza principios de Domain-Driven Design, técnicas de Behavior-Driven Development, enfoques de arquitectura evolutiva y herramientas de gobernanza arquitectónica como los Architectural Decision Records (ADR). Esta combinación permite una alineación continua entre los escenarios funcionales y la arquitectura técnica del sistema, sosteniendo la coherencia estructural a lo largo del ciclo de vida ágil.
+BDMA constituye así un marco metodológico innovador, orientado a la práctica y basado en evidencia funcional, que fortalece la autonomía y consistencia de los equipos ágiles en el diseño de soluciones escalables, trazables y alineadas con el dominio de negocio.
+•	BDMA no busca generar los escenarios BDD. Parte explícitamente de un backlog funcional ya redactado y validado.
+•	Propone un proceso estructurado, documentado y replicable para que los equipos:
+o	Transformen escenarios BDD en artefactos arquitectónicos.
+o	Mantengan una arquitectura coherente y trazable frente a la evolución de requisitos.
+o	Equilibren prácticas ágiles con rigor arquitectónico.
+•	A diferencia de trabajos previos:
+o	Propone artefactos intermedios claros.
+o	Define un flujo concreto de diseño.
+o	Ofrece un enfoque aplicable a entornos reales, no solo como marco teórico.
+Proceso (general)
+Fase	Concepto	Fuente 
+1. Clasificación funcional de escenarios	Arquitectura evolutiva alineada a features/epics	Ford, N. et al. Building Evolutionary Architectures, O’Reilly, 2017
+	Continuous Architecture: decisiones orientadas a negocio	Erder, M., Pureur, P., Woods, E. Continuous Architecture in Practice, Morgan Kaufmann, 2020
+2. Extracción colaborativa de elementos del dominio	BDD para describir comportamiento y extraer elementos del dominio	Smart, J., Molak, J. BDD in Action, 2nd Edition, Manning, 2023
+	Relación entre BDD y DDD	Hippchen, T. et al. Designing microservice-based applications by using a domain-driven design approach, 2017
+	Uso de BDD para extracción en contexto DDD	Rademacher, F., Sorgalla, J., & Zündorf, A. Towards a UML Profile for DDD of Microservice Architectures, 2017
+3. Delimitación de bounded contexts	Context Map, bounded contexts en DDD	Evans, E. Domain-Driven Design, Addison-Wesley, 2004
+	Event Storming como técnica colaborativa	Brandolini, A. Introducing Event Storming, Leanpub, 2018
+		Aplicación de patrones estratégicos en arquitecturas distribuidas	Vernon, V. Implementing Domain-Driven Design, Addison-Wesley, 2016
+	Modelado formal de contextos y relaciones en microservicios	Rademacher et al., 2017
+4. Derivación de interfaces y contratos API	Diseño de APIs contract-first y patrones de diseño para testabilidad	Zimmermann, O., et al. Patterns for API Design, Springer, 2022
+	Especificación como prueba en arquitecturas evolutivas	Ford, N. et al. Building Evolutionary Architectures, 2017
+	Mapeo de escenarios BDD a endpoints y pruebas automatizadas	Smart, J., Molak, J. BDD in Action, 2023
+5. Validación continua y evolución estructural	ADR como técnica formal para registrar decisiones arquitectónicas	Kopp, O. et al. Markdown Architectural Decision Records: Format and Tool Support, 10th ZEUS Workshop, CEUR-WS Vol. 2072, 2018
+	Validación continua de hipótesis arquitectónicas	Ford, N. et al. Building Evolutionary Architectures, 2017
+	
+Evolución y versionado del Context Map en Continuous Architecture
+	Erder, M., Pureur, P., Woods, E. Continuous Architecture in Practice, 2020
+
+
+Patrones de relaciones entre bounded context
+Los bounded contexts son una pieza central del enfoque DDD, definidos como límites semánticos dentro de los cuales un modelo de dominio tiene un significado coherente y consistente. Cuando múltiples contextos coexisten en una misma solución, las interacciones entre ellos deben ser cuidadosamente diseñadas para evitar acoplamiento excesivo, ambigüedad semántica y dependencias técnicas rígidas.
+Para ello, (Evans, 2004) introdujo un conjunto de patrones de relación inter-contextual, que describen formas típicas de comunicación, colaboración y dependencia entre contextos. Esta línea fue luego ampliada por (Vernon, 2016), quien aplicó estos patrones a arquitecturas distribuidas modernas.
+Además, enfoques como el propuesto por (Rademacher et al., 2018) introdujeron representaciones formales de estas relaciones mediante perfiles UML adaptados a arquitecturas basadas en microservicios, lo que refuerza su utilidad como componente estructural en el diseño de sistemas evolutivos.
+Patrón	Descripción	Referencias
+Conformist	Un contexto consumidor adopta sin adaptación el modelo del proveedor. Minimiza esfuerzo, pero genera dependencia fuerte.	(Evans, 2004; Vernon, 2016)
+
+Partnership	Ambos contextos colaboran activamente para definir una interfaz compartida. Alta coordinación, menor autonomía.	(Evans, 2004; Vernon, 2016)
+
+ACL (Anti-Corruption Layer)	El consumidor traduce y adapta el modelo del proveedor para mantener su independencia semántica.	(Evans, 2004; Rademacher et al., 2018) 
+
+Open Host Service / Published Language	El proveedor define una API o esquema compartido como contrato estable. Promueve interoperabilidad.	(Evans, 2004)
+
+Shared Kernel	Dos contextos comparten explícitamente parte del modelo, acordando su evolución conjunta.	(Evans, 2004; Vernon, 2016)
+
+
+BDMA 
+Diversos estudios han señalado que, a pesar de la creciente adopción de arquitecturas basadas en microservicios (MSSA), muchas organizaciones continúan utilizando enfoques tradicionales heredados del diseño orientado a objetos (OOAD) y de prácticas ágiles pensadas para arquitecturas monolíticas, como las estimaciones subjetivas con Story Points o Planning Poker.
+En este sentido, (Ünlü et al., 2024) evidencian que, aunque el paradigma ágil es percibido como compatible con MSSA, las prácticas actuales de análisis, diseño y estimación no se han adaptado a las particularidades de este estilo arquitectónico, como la comunicación asincrónica, los contextos acotados y la autonomía de servicios. Los autores concluyen que “las organizaciones carecen de herramientas fundamentales para desarrollar sistemas basados en microservicios” y subrayan la necesidad de enfoques de modelado que se alineen naturalmente con los principios del paradigma, tales como eventos, contratos y comunicación desacoplada.
+Esta brecha en las metodologías existentes justifica el desarrollo de nuevos marcos metodológicos, como la propuesta BDMA presentada en esta tesis, que integra enfoques centrados en el comportamiento (BDD) y en el modelo de dominio (DDD) para asistir la identificación, análisis y diseño iterativo de microservicios en contextos ágiles greenfield.
+El proceso de BDMA se estructura en cinco fases iterativas, alineadas con el ciclo de diseño ágil y orientadas a sostener la coherencia y trazabilidad de la arquitectura en sincronía con la evolución funcional del sistema. Cada fase aporta artefactos intermedios y mecanismos de validación que permiten consolidar los bounded contexts, los contratos de servicio y la documentación de decisiones arquitectónicas.
+BDMA no propone un enfoque secuencial cerrado, sino un marco metodológico que se integra de forma incremental al ciclo de vida ágil. En cada iteración (Sprint), se aplican las fases de BDMA únicamente sobre los escenarios funcionales priorizados. Las fases no se ejecutan en bloque, sino en función del impacto que tiene cada cambio funcional sobre el dominio y la arquitectura. La Fase 5 se activa de manera continua para garantizar coherencia y trazabilidad evolutiva, permitiendo que la arquitectura crezca orgánicamente a partir del comportamiento deseado del sistema.
+
+
+Etapa del ciclo ágil	Fase BDMA relacionada	Qué ocurre
+Refinamiento del backlog	Fase 1 (clasificación)	Se agrupan los nuevos escenarios BDD por feature/epic
+Inicio del Sprint	Fase 2 (extracción de dominio)	Se analizan los escenarios priorizados, se identifican comandos, eventos y actores
+Diseño técnico inicial	Fase 3 (bounded contexts)	Se ajustan o redefinen límites de contextos si hay cambios relevantes
+Implementación	Fase 4 (contratos API)	Solo si el contexto impactado expone funcionalidades. Se derivan contratos desde los nuevos escenarios
+Durante el Sprint	Fase 5 (validación continua)	Se ejecutan pruebas BDD, se detectan impactos, se registran ADRs y se actualizan artefactos arquitectónicos
+Cierre / Revisión de Sprint	Consolidación de artefactos	Se valida que la arquitectura sigue representando al dominio funcional. Se versiona el Context Map
+
+
+Fase 1. Clasificación funcional de escenarios
+Objetivo
+Organizar el backlog funcional —especificado mediante escenarios BDD validados— en agrupaciones coherentes que representen funcionalidades, procesos de negocio o epics. Esta organización inicial sirve como insumo para la delimitación de bounded contexts en fases posteriores.
+Entradas
+•	Backlog funcional expresado en escenarios BDD redactados con lenguaje Gherkin (Given-When-Then)
+•	Metainformación opcional sobre los escenarios (tags, epics, user stories asociadas)
+Salidas
+•	Grupos funcionales de escenarios  candidatos a bounded contexts iniciales.
+•	Tabla de trazabilidad con la siguiente estructura
+o	Epic / proceso
+o	Escenario BDD asociado
+o	Notas
+Artefacto Generado en función de las salidas
+•	Mapa de agrupamiento funcional (EJEMPLO)
+o	Nombre del grupo: Gestión de Pedidos
+o	Escenarios: Pedido creado, Pedido cancelado, Pedido confirmado
+o	Actor principal: Cliente
+o	Eventos clave: PedidoCreado, PedidoCancelado
+o	Notas: Procesos altamente cohesionados; se sugiere como contexto separado
+Fase 2. Extracción colaborativa de elementos del dominio
+Objetivo
+Identificar, desde los escenarios BDD agrupados, los actores, comandos, eventos y entidades que estructuran el dominio funcional. Esta extracción es la base para construir bounded contexts significativos y modelos de dominio consistentes.
+Entradas
+•	Escenarios BDD organizados por agrupamientos funcionales (salida formal de la Fase 1)
+•	Mapa funcional preliminar con tags de features, epics o procesos
+•	Conocimiento contextual del negocio (proporcionado por PO o expertos)
+
+Salidas:
+•	Lista de comandos y eventos por contexto funcional.
+•	Mapa preliminar de relaciones entre entidades.
+•	Tabla de trazabilidad: escenario -> comando , evento o actor
+Artefacto generado en función de las salidas
+•	Mapa de elementos del dominio por escenario
+o	Grupo funcional
+o	Escenario
+o	Actor
+o	Comando (When)
+o	Evento (Then)
+o	Entidades (Given)
+Fase 3. Delimitación y formalización de bounded contexts
+Objetivo
+Agrupar comandos, eventos y entidades relacionados —extraídos de los escenarios BDD— en bounded contexts coherentes, explícitamente delimitados, que permitan separar responsabilidades, minimizar acoplamientos y sostener la evolución independiente de los servicios.
+Entradas
+•	Mapa de agrupamientos funcionales (artefacto de la Fase 1)
+•	Mapa de elementos del dominio por escenario (artefacto de la Fase 2)
+•	Conocimiento contextual de dependencias organizacionales y técnicas
+Salidas
+•	Lista de bounded contexts con nombre, responsabilidad y elementos del dominio asignados
+•	Mapa de relaciones entre contextos
+•	Declaración de reglas de interacción (eventos compartidos, ACL, contratos esperados). La comunicación debe ser explicita, controlada (sin acoplamientos indeseados) y mantenible
+o	Partnership
+	Relación activa de colaborascion
+	Ambos ctx evolucionan juntos
+	Requiere coordinación de equipos
+o	Conformist
+	Un contexto acepta otro sin conformarlo
+	Ejemplo: reportes se adapta al modelo de ventas
+o	Anti coppution layer (ACL)
+	El contexto consumidor traduce el modelo del otro a su propia necesidad
+	Evita acoplarse directamente a cambios ajenos
+Artefacto generado en función de las salidas
+•	Mapa formal de bounded contexts
+o	Nombre del context
+o	Comandos
+o	Eventos
+o	Entidades
+o	Reqioere derivación de contrato api (fase 4)
+o	Notas
+•	Mapa de interacciones entre contextod
+o	Contexto Origen
+o	Contexto Destino
+o	Tipo de relación
+o	Medio de interacción
+o	Notas
+•	Identificación de contextos que requieren contratos API
+o	Evaluar si cada contexto será consumido por otros o si pública eventos  para indicar si requiere fase 4
+Fase 4. Derivación de interfaces y contratos API
+Objetivo
+Traducir los comandos y eventos definidos en escenarios BDD, dentro de cada bounded context, en contratos de servicio (APIs) que sean verificables, trazables y diseñados para pruebas automatizadas. Esta fase garantiza que la arquitectura técnica respete las especificaciones funcionales y permita evolución segura..
+Entradas:
+•	Mapa de elementos del dominio (Fase 2)
+•	Mapa de bounded contexts (Fase 3)
+•	Reglas de interacción entre contextos (artefacto 2)
+•	Escenarios BDD originales como fuente de trazabilidad
+Salidas:
+•	Especificación de contratos API por contexto.
+•	Trazabilidad documentada escenario ↔ endpoint ↔ prueba.
+Artefacto generado en función de las salidas
+•	Especificación de contratos API con trazabilidad funcional
+o	Contexto
+o	Endpoint
+o	Verbo
+o	Comento o eventos asociados
+o	Escenario BDD
+o	Observaciones
+Fase 5. Validación continua y evolución controlada
+Objetivo
+Garantizar que la arquitectura de microservicios evolucione en sincronía con los cambios funcionales del sistema, manteniendo la trazabilidad completa desde los escenarios BDD, y documentando cada decisión estructural mediante mecanismos formales que habiliten la revisión, refactorización y mantenimiento.
+Entradas
+•	Contratos API y relaciones de integración (Fase 4)
+•	Mapa de bounded contexts versionado (Fase 3)
+•	Escenarios BDD actualizados
+•	Historial de decisiones previas (bitácora ADR)
+Artefactos generados en la iteración
+•	Bitácora de decisiones arquitectónicas (ADR Log)
+o	Repositorio de decisiones versionado, accesible, con formato estándar
+•	Informe de trazabilidad evolutiva
+o	Documento o herramienta que mapea:
+	Escenario BDD ↔ Contrato API ↔ Servicio ↔ ADR
+•	Modelo de dominio  y context Map versionado
+o	Versión actual y coherente con context map
+•	Registro de contratos API ajustados o deprecados
+o	Contratos API (Fase 4), ADRs asociados a cambios
+
+Bibliografía
+Evans, E. (2004). Domain-driven design: tackling complexity in the heart of software. Addison-Wesley Professional.
+Rademacher, F., Sachweh, S., & Zündorf, A. (2018). Towards a UML profile for domain-driven design of microservice architectures. Software Engineering and Formal Methods: SEFM 2017 Collocated Workshops: DataMod, FAACS, MSE, CoSim-CPS, and FOCLASA, Trento, Italy, September 4-5, 2017, Revised Selected Papers 15, 230–245.
+Ünlü, H., Kennouche, D. E., Soylu, G. K., & Demirörs, O. (2024). Microservice-based projects in agile world: A structured interview. Information and Software Technology, 165, 107334.
+Vernon, V. (2016). Implementing Domain-Driven Design. Addison-Wesley Professional.
+ 
