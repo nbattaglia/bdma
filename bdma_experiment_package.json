@@ -1,0 +1,267 @@
+{
+  "schema_version": "1.0",
+  "lang": "es",
+  "meta": {
+    "project": "Behavior-Driven Microservice Architecture (BDMA)",
+    "owner": "Nicolás Battaglia",
+    "institution": "Universidad Abierta Interamericana",
+    "course": "Diseño y Arquitectura de Software (Posgrado)",
+    "study_type": "Validación preliminar en entorno académico controlado",
+    "n_participants": 28,
+    "scale_likert": {
+      "min": 1,
+      "max": 5,
+      "labels": {
+        "1": "Totalmente en desacuerdo",
+        "5": "Totalmente de acuerdo"
+      }
+    },
+    "created_at": "2025-09-03T13:02:52.510892Z"
+  },
+  "experiment": {
+    "objetivo": "Comparar identificación y diseño de microservicios sin guía estructurada vs. aplicando BDMA sobre un mismo escenario de dominio.",
+    "hipotesis": [
+      "H1: BDMA mejora la comprensión del dominio.",
+      "H2: BDMA facilita el razonamiento sobre el comportamiento esperado (vía escenarios BDD).",
+      "H3: BDMA apoya la toma de decisiones arquitectónicas con una guía paso a paso.",
+      "H4: BDMA mejora la identificación de microservicios.",
+      "H5: BDMA incrementa la percepción de mantenibilidad.",
+      "H6: La comparación explícita entre enfoques mejora la reflexión sobre el diseño."
+    ],
+    "diseno": {
+      "tipo": "intra-sujetos (within-subjects)",
+      "partes": [
+        {
+          "id": "P1",
+          "descripcion": "Arquitectura SIN BDMA (principios generales de DDD)."
+        },
+        {
+          "id": "P2",
+          "descripcion": "Arquitectura CON BDMA (fases y artefactos)."
+        }
+      ],
+      "orden": "fijo (P1→P2)",
+      "control_interno": [
+        "Mismo escenario de dominio en P1 y P2",
+        "Mismos equipos",
+        "Entregables comparables"
+      ],
+      "riesgos_sesgo": [
+        "Efecto aprendizaje por orden fijo (P1→P2)",
+        "Efecto novedad por introducción de BDMA"
+      ]
+    },
+    "participantes": {
+      "resumen_perfiles": "Perfiles académicos y profesionales diversos; mayoría de la industria TI. Roles: análisis/diseño, arquitectura, desarrollo, gestión de proyectos y analista funcional; también academia y otras áreas.",
+      "conocimiento_previo_escala": "0–5",
+      "conocimiento_previo_media": {
+        "metodos_agiles_scrum_lean": 3.71,
+        "patrones_software": 3.43,
+        "uml": 3.32,
+        "arquitecturas_monoliticas": 3.03,
+        "ddd": 2.86,
+        "bdd": 2.82,
+        "diseno_microservicios": 2.79,
+        "tdd_atdd": 2.54,
+        "soa": 2.5,
+        "implementacion_microservicios": 2.36
+      }
+    },
+    "escenario": {
+      "resumen": "Plataforma distribuida para la gestión integral de publicaciones científicas (revistas y congresos).",
+      "actores": [
+        "Autores",
+        "Revisores",
+        "Editores",
+        "Administradores editoriales"
+      ],
+      "dinamica": "Procesos asincrónicos regidos por políticas dinámicas."
+    },
+    "materiales": {
+      "guia_P1": "Consigna de arquitectura basada en principios generales de DDD (sin BDMA).",
+      "guia_P2": "Guía de BDMA: escenarios BDD → agrupamiento funcional → extracción de elementos del dominio → delimitación de bounded contexts → definición de contratos e interfaces → ADR/bitácora de decisiones → validación continua."
+    },
+    "procedimiento_detallado": {
+      "preparacion": [
+        "Presentación del escenario y objetivos del ejercicio.",
+        "Formación de equipos de trabajo."
+      ],
+      "parte_1_sin_BDMA": [
+        "Analizar el escenario con principios generales de DDD.",
+        "Proponer bounded contexts y eventos de dominio.",
+        "Definir diseño táctico y arquitectura de microservicios.",
+        "Entregar artefactos: modelo de contextos, microservicios propuestos, justificación de decisiones."
+      ],
+      "parte_2_con_BDMA": {
+        "fase_1_escenarios_BDD": "Redactar escenarios funcionales en lenguaje BDD (Given–When–Then).",
+        "fase_2_agrupamiento_funcional": "Agrupar escenarios por afinidad funcional y objetivos de negocio.",
+        "fase_3_extraccion_dominio": "Identificar entidades, agregados, eventos y comandos; trazar lenguaje ubicuo.",
+        "fase_4_delimitacion_contextos": "Definir bounded contexts y relaciones (interacciones, anticorrupción, etc.).",
+        "fase_5_contratos_e_interfaces": "Derivar contratos de servicio (API), eventos publicados/suscritos y patrones de interacción.",
+        "fase_6_bitacora_y_validacion": "Registrar ADRs y validar coherencia/consistencia (evolución controlada).",
+        "entregables": [
+          "Mapa de agrupamiento funcional",
+          "Elementos del dominio",
+          "Context map versionado",
+          "Contratos API (borrador)",
+          "Bitácora de ADRs"
+        ]
+      },
+      "cierre_y_medicion": [
+        "Comparación explícita de P1 vs. P2 por los mismos equipos.",
+        "Cuestionario anónimo Likert (1–5) + preguntas abiertas (ventajas/dificultades/mejoras)."
+      ]
+    },
+    "deliverables": {
+      "P1": [
+        "Mapa de contextos inicial",
+        "Listado de microservicios propuestos",
+        "Justificación de decisiones"
+      ],
+      "P2": [
+        "Escenarios BDD",
+        "Mapa de agrupamiento",
+        "Elementos de dominio",
+        "Context map",
+        "Contratos e interfaces",
+        "ADRs",
+        "Resumen de validación"
+      ]
+    },
+    "activos_referencia": {
+      "ejemplo_publico_url": "https://nbattaglia.github.io/bdma/",
+      "figuras": [
+        "Figura 1: Mapa de contexto resultante (interacciones por eventos de dominio)"
+      ]
+    }
+  },
+  "instrumento": {
+    "entrega": "Cuestionario anónimo posterior a la Parte 2 (con BDMA)",
+    "escala_likert": {
+      "min": 1,
+      "max": 5,
+      "anclajes": {
+        "1": "Totalmente en desacuerdo",
+        "5": "Totalmente de acuerdo"
+      }
+    },
+    "items": [
+      {
+        "id": "Q1",
+        "label": "El enfoque sistemático de la Parte 2 me ayudó a entender mejor el dominio."
+      },
+      {
+        "id": "Q2",
+        "label": "El uso de escenarios BDD me permitió razonar mejor sobre el comportamiento esperado."
+      },
+      {
+        "id": "Q3",
+        "label": "La guía paso a paso facilitó la toma de decisiones arquitectónicas."
+      },
+      {
+        "id": "Q4",
+        "label": "Pude identificar mejor los microservicios usando el enfoque estructurado."
+      },
+      {
+        "id": "Q5",
+        "label": "Considero que esta forma de trabajar mejora la mantenibilidad de la solución."
+      },
+      {
+        "id": "Q6",
+        "label": "La comparación entre ambos enfoques me ayudó a reflexionar sobre el diseño arquitectónico."
+      }
+    ]
+  },
+  "resultados": {
+    "cuantitativos": {
+      "resumen": {
+        "media_min": 4.46,
+        "media_max": 4.75,
+        "desvio_min": 0.44,
+        "desvio_max": 0.74,
+        "minimos": [
+          3,
+          4
+        ],
+        "maximo": 5,
+        "interpretacion": "Medias altas y consistentes con baja dispersión; amplio consenso sobre beneficios de BDMA."
+      },
+      "por_item": [
+        {
+          "id": "Q1",
+          "mean": 4.75,
+          "stdev": 0.44,
+          "min": 4,
+          "max": 5
+        },
+        {
+          "id": "Q2",
+          "mean": 4.68,
+          "stdev": 0.47,
+          "min": 4,
+          "max": 5
+        },
+        {
+          "id": "Q3",
+          "mean": 4.57,
+          "stdev": 0.69,
+          "min": 3,
+          "max": 5
+        },
+        {
+          "id": "Q4",
+          "mean": 4.46,
+          "stdev": 0.74,
+          "min": 3,
+          "max": 5
+        },
+        {
+          "id": "Q5",
+          "mean": 4.5,
+          "stdev": 0.63,
+          "min": 3,
+          "max": 5
+        },
+        {
+          "id": "Q6",
+          "mean": 4.57,
+          "stdev": 0.5,
+          "min": 4,
+          "max": 5
+        }
+      ]
+    },
+    "cualitativos": {
+      "ventajas": [
+        "Mayor orden y claridad en el proceso.",
+        "Mejor comprensión del dominio y razonamiento del comportamiento mediante BDD.",
+        "Reflexión y justificación más sólidas de decisiones arquitectónicas."
+      ],
+      "dificultades": [
+        "Curva de aprendizaje inicial (escenarios BDD y flujo por fases).",
+        "Carga cognitiva por comparar enfoques en paralelo."
+      ],
+      "mejoras_sugeridas": [
+        "Más ejemplos de escenarios BDD.",
+        "Más práctica en derivación de contratos e interfaces."
+      ]
+    }
+  },
+  "interpretacion": {
+    "control_interno": "Comparación intra-sujetos (P1 vs. P2 sobre mismo escenario y por los mismos equipos).",
+    "efecto_pedagogico": "BDMA funciona como andamiaje que estructura la complejidad en formación avanzada.",
+    "aplicabilidad_practica": "Incluso con experiencia intermedia, se produjeron diseños más claros y mantenibles usando BDMA.",
+    "limitaciones": [
+      "Contexto académico, escenario simulado y muestra reducida.",
+      "Orden fijo P1→P2 puede introducir efecto de aprendizaje.",
+      "No se relevaron medidas objetivas de calidad en esta fase (solo percepción)."
+    ],
+    "trabajo_futuro": [
+      "Validaciones en proyectos reales con equipos distribuidos bajo presión de producción.",
+      "Estudios longitudinales multi-iteración para evaluar evolución y mantenibilidad.",
+      "Métricas objetivas (acoplamiento, cohesión, trazabilidad).",
+      "Exploración pedagógica del uso de BDMA como herramienta didáctica.",
+      "Prototipos de herramientas para automatizar artefactos BDMA."
+    ]
+  }
+}

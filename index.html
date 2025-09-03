@@ -176,6 +176,9 @@
 
     <!-- FASE 5 -->
     <section id="fase5"></section>
+
+    <!-- EXPERIMENTO -->
+    <section id="experimento"></section>
   </main>
 
   <footer class="wrap">
@@ -612,7 +615,8 @@ const tabs = [
   {id:"fase2", label:"Fase 2"},
   {id:"fase3", label:"Fase 3"},
   {id:"fase4", label:"Fase 4"},
-  {id:"fase5", label:"Fase 5"}
+  {id:"fase5", label:"Fase 5"},
+  {id:"experimento", label:"Experimento"}
 ];
 
 function mountTabs(){
@@ -903,25 +907,7 @@ function renderFase1(){
   ];
 
   // Función auxiliar para crear links de escenarios
-  function createScenarioLinks(escenarios) {
-    return escenarios.map(escenario => {
-      // Verificar si el escenario existe en bddBlocks
-      const exists = bddBlocks.some(b => b.tag === `@${escenario}`);
-      if (exists) {
-        return `<span class="scenario-link" onclick="openScenarioModal('${escenario}')">${escenario}</span>`;
-      } else {
-        return `<span class="muted">${escenario}</span>`;
-      }
-    }).join(', ');
-  }
-
-  // Función auxiliar para múltiples escenarios separados por coma o espacios
-  function createMultipleScenarioLinks(escenarioString) {
-    if (!escenarioString) return '';
-    const escenarios = escenarioString.split(/[,\s]+/).map(s => s.trim()).filter(s => s);
-    return createScenarioLinks(escenarios);
-  }
-
+  // Función auxiliar para crear enlaces de escenarios
   mapaAgrupamiento.forEach(grupo=>{
     const tr=document.createElement('tr');
     tr.innerHTML=`
@@ -2188,6 +2174,269 @@ function renderFase5(){
   sec.appendChild(conclusiones);
 }
 
+function renderExperimento(){
+  const sec=document.getElementById('experimento'); 
+  console.log('Renderizando experimento, elemento encontrado:', sec);
+  sec.innerHTML='';
+  
+  // Título y descripción
+  const descripcion=document.createElement('div'); descripcion.className='card fase-section';
+  descripcion.innerHTML=`
+    <h3>Validación Experimental de BDMA</h3>
+    <p class="muted"><strong>Estudio:</strong> Validación preliminar en entorno académico controlado con 28 participantes del curso de Diseño y Arquitectura de Software (Posgrado) - Universidad Abierta Interamericana.</p>
+    <div class="kpi">
+      <span class="pill">28 participantes</span>
+      <span class="pill">Diseño intra-sujetos</span>
+      <span class="pill">Escala Likert 1-5</span>
+      <span class="pill">Comparación SIN vs CON BDMA</span>
+    </div>
+  `;
+  sec.appendChild(descripcion);
+  console.log('Descripción agregada, contenido de sec:', sec.innerHTML.length);
+
+  // Objetivo e hipótesis
+  const grid1=document.createElement('div'); grid1.className='grid fase-section';
+  
+  const objetivo=document.createElement('div'); objetivo.className='card span6';
+  objetivo.innerHTML=`
+    <h3>🎯 Objetivo del Experimento</h3>
+    <p class="muted">Comparar identificación y diseño de microservicios sin guía estructurada vs. aplicando BDMA sobre un mismo escenario de dominio.</p>
+    <div class="info">
+      <strong>Escenario:</strong> Plataforma distribuida para la gestión integral de publicaciones científicas (revistas y congresos) con procesos asincrónicos regidos por políticas dinámicas.
+    </div>
+  `;
+  
+  const hipotesis=document.createElement('div'); hipotesis.className='card span6';
+  hipotesis.innerHTML=`
+    <h3>🔬 Hipótesis de Investigación</h3>
+    <ul class="muted">
+      <li><strong>H1:</strong> BDMA mejora la comprensión del dominio</li>
+      <li><strong>H2:</strong> BDMA facilita el razonamiento sobre comportamiento (BDD)</li>
+      <li><strong>H3:</strong> BDMA apoya la toma de decisiones arquitectónicas</li>
+      <li><strong>H4:</strong> BDMA mejora la identificación de microservicios</li>
+      <li><strong>H5:</strong> BDMA incrementa la percepción de mantenibilidad</li>
+      <li><strong>H6:</strong> La comparación mejora la reflexión sobre diseño</li>
+    </ul>
+  `;
+  
+  grid1.append(objetivo, hipotesis);
+  sec.appendChild(grid1);
+
+  // Diseño experimental
+  const diseno=document.createElement('div'); diseno.className='card fase-section';
+  diseno.innerHTML=`
+    <h3>📋 Diseño Experimental</h3>
+    <div class="grid">
+      <div class="card span6">
+        <h4>Metodología</h4>
+        <ul class="muted">
+          <li><strong>Tipo:</strong> Intra-sujetos (within-subjects)</li>
+          <li><strong>Orden:</strong> Fijo (P1→P2)</li>
+          <li><strong>P1:</strong> Arquitectura SIN BDMA (principios generales DDD)</li>
+          <li><strong>P2:</strong> Arquitectura CON BDMA (fases y artefactos)</li>
+        </ul>
+      </div>
+      <div class="card span6">
+        <h4>Control Interno</h4>
+        <ul class="muted">
+          <li>Mismo escenario de dominio en P1 y P2</li>
+          <li>Mismos equipos de trabajo</li>
+          <li>Entregables comparables</li>
+          <li>Cuestionario anónimo post-experiencia</li>
+        </ul>
+      </div>
+    </div>
+  `;
+  sec.appendChild(diseno);
+
+  // Participantes
+  const participantes=document.createElement('div'); participantes.className='card fase-section';
+  participantes.innerHTML=`
+    <h3>👥 Perfil de Participantes</h3>
+    <p class="muted">Perfiles académicos y profesionales diversos; mayoría de la industria TI. Roles: análisis/diseño, arquitectura, desarrollo, gestión de proyectos y analista funcional.</p>
+    <h4>Conocimiento Previo (Escala 0-5)</h4>
+    <table>
+      <thead><tr><th>Área de Conocimiento</th><th>Media</th></tr></thead>
+      <tbody>
+        <tr><td>Métodos Ágiles (Scrum, Lean)</td><td><strong>3.71</strong></td></tr>
+        <tr><td>Patrones de Software</td><td><strong>3.43</strong></td></tr>
+        <tr><td>UML</td><td><strong>3.32</strong></td></tr>
+        <tr><td>Arquitecturas Monolíticas</td><td><strong>3.03</strong></td></tr>
+        <tr><td>Domain-Driven Design (DDD)</td><td><strong>2.86</strong></td></tr>
+        <tr><td>Behavior-Driven Development (BDD)</td><td><strong>2.82</strong></td></tr>
+        <tr><td>Diseño de Microservicios</td><td><strong>2.79</strong></td></tr>
+        <tr><td>TDD/ATDD</td><td><strong>2.54</strong></td></tr>
+        <tr><td>SOA</td><td><strong>2.50</strong></td></tr>
+        <tr><td>Implementación de Microservicios</td><td><strong>2.36</strong></td></tr>
+      </tbody>
+    </table>
+  `;
+  sec.appendChild(participantes);
+
+  // Procedimiento
+  const procedimiento=document.createElement('div'); procedimiento.className='card fase-section';
+  procedimiento.innerHTML=`
+    <h3>⚙️ Procedimiento Detallado</h3>
+    <div class="grid">
+      <div class="card span6">
+        <h4>Parte 1: SIN BDMA</h4>
+        <ul class="muted">
+          <li>Analizar escenario con principios generales DDD</li>
+          <li>Proponer bounded contexts y eventos</li>
+          <li>Definir diseño táctico y arquitectura</li>
+          <li><strong>Entregables:</strong> Modelo de contextos, microservicios propuestos, justificación</li>
+        </ul>
+      </div>
+      <div class="card span6">
+        <h4>Parte 2: CON BDMA</h4>
+        <ul class="muted">
+          <li><strong>Fase 1:</strong> Escenarios BDD (Given-When-Then)</li>
+          <li><strong>Fase 2:</strong> Agrupamiento funcional</li>
+          <li><strong>Fase 3:</strong> Extracción elementos dominio</li>
+          <li><strong>Fase 4:</strong> Delimitación de contextos</li>
+          <li><strong>Fase 5:</strong> Contratos e interfaces</li>
+          <li><strong>Fase 6:</strong> ADRs y validación</li>
+        </ul>
+      </div>
+    </div>
+  `;
+  sec.appendChild(procedimiento);
+
+  // Resultados cuantitativos
+  const resultados=document.createElement('div'); resultados.className='card fase-section';
+  resultados.innerHTML=`
+    <h3>📊 Resultados Cuantitativos</h3>
+    <div class="info">
+      <strong>Resumen:</strong> Medias altas y consistentes con baja dispersión (4.46-4.75); amplio consenso sobre beneficios de BDMA.
+    </div>
+    <table style="margin-top: 12px;">
+      <thead><tr><th>Pregunta</th><th>Enunciado</th><th>Media</th><th>Desv. Est.</th><th>Min-Max</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Q1</strong></td>
+          <td>El enfoque sistemático me ayudó a entender mejor el dominio</td>
+          <td><strong>4.75</strong></td>
+          <td>0.44</td>
+          <td>4-5</td>
+        </tr>
+        <tr>
+          <td><strong>Q2</strong></td>
+          <td>Los escenarios BDD me permitieron razonar mejor sobre comportamiento</td>
+          <td><strong>4.68</strong></td>
+          <td>0.47</td>
+          <td>4-5</td>
+        </tr>
+        <tr>
+          <td><strong>Q3</strong></td>
+          <td>La guía paso a paso facilitó las decisiones arquitectónicas</td>
+          <td><strong>4.57</strong></td>
+          <td>0.69</td>
+          <td>3-5</td>
+        </tr>
+        <tr>
+          <td><strong>Q4</strong></td>
+          <td>Pude identificar mejor los microservicios con el enfoque estructurado</td>
+          <td><strong>4.46</strong></td>
+          <td>0.74</td>
+          <td>3-5</td>
+        </tr>
+        <tr>
+          <td><strong>Q5</strong></td>
+          <td>Esta forma de trabajar mejora la mantenibilidad de la solución</td>
+          <td><strong>4.50</strong></td>
+          <td>0.63</td>
+          <td>3-5</td>
+        </tr>
+        <tr>
+          <td><strong>Q6</strong></td>
+          <td>La comparación me ayudó a reflexionar sobre diseño arquitectónico</td>
+          <td><strong>4.57</strong></td>
+          <td>0.50</td>
+          <td>4-5</td>
+        </tr>
+      </tbody>
+    </table>
+  `;
+  sec.appendChild(resultados);
+
+  // Resultados cualitativos
+  const grid2=document.createElement('div'); grid2.className='grid fase-section';
+  
+  const ventajas=document.createElement('div'); ventajas.className='card span6';
+  ventajas.innerHTML=`
+    <h3>✅ Ventajas Identificadas</h3>
+    <ul class="muted">
+      <li><strong>Mayor orden y claridad</strong> en el proceso de diseño</li>
+      <li><strong>Mejor comprensión del dominio</strong> y razonamiento del comportamiento mediante BDD</li>
+      <li><strong>Reflexión y justificación más sólidas</strong> de decisiones arquitectónicas</li>
+      <li><strong>Trazabilidad completa</strong> desde requisitos hasta implementación</li>
+      <li><strong>Documentación estructurada</strong> con ADRs y artefactos versionados</li>
+    </ul>
+  `;
+  
+  const dificultades=document.createElement('div'); dificultades.className='card span6';
+  dificultades.innerHTML=`
+    <h3>⚠️ Dificultades y Mejoras</h3>
+    <h4>Dificultades:</h4>
+    <ul class="muted">
+      <li><strong>Curva de aprendizaje inicial</strong> (escenarios BDD y flujo por fases)</li>
+      <li><strong>Carga cognitiva</strong> por comparar enfoques en paralelo</li>
+    </ul>
+    <h4>Mejoras Sugeridas:</h4>
+    <ul class="muted">
+      <li>Más ejemplos de <strong>escenarios BDD</strong></li>
+      <li>Más práctica en <strong>derivación de contratos</strong> e interfaces</li>
+    </ul>
+  `;
+  
+  grid2.append(ventajas, dificultades);
+  sec.appendChild(grid2);
+
+  // Interpretación y trabajo futuro
+  const interpretacion=document.createElement('div'); interpretacion.className='card fase-section';
+  interpretacion.innerHTML=`
+    <h3>📈 Interpretación y Trabajo Futuro</h3>
+    <div class="grid">
+      <div class="card span6">
+        <h4>Efecto Pedagógico</h4>
+        <p class="muted">BDMA funciona como <strong>andamiaje</strong> que estructura la complejidad en formación avanzada. Incluso con experiencia intermedia, se produjeron diseños más claros y mantenibles.</p>
+        
+        <h4>Limitaciones</h4>
+        <ul class="muted">
+          <li>Contexto académico y escenario simulado</li>
+          <li>Muestra reducida (n=28)</li>
+          <li>Orden fijo P1→P2 (efecto aprendizaje)</li>
+          <li>Solo medidas perceptuales (no objetivas)</li>
+        </ul>
+      </div>
+      <div class="card span6">
+        <h4>Trabajo Futuro</h4>
+        <ul class="muted">
+          <li><strong>Validaciones en proyectos reales</strong> con equipos distribuidos</li>
+          <li><strong>Estudios longitudinales</strong> multi-iteración</li>
+          <li><strong>Métricas objetivas</strong> (acoplamiento, cohesión, trazabilidad)</li>
+          <li><strong>Exploración pedagógica</strong> como herramienta didáctica</li>
+          <li><strong>Prototipos de herramientas</strong> para automatizar artefactos BDMA</li>
+        </ul>
+      </div>
+    </div>
+  `;
+  sec.appendChild(interpretacion);
+
+  // Conclusiones del experimento
+  const conclusiones=document.createElement('div'); conclusiones.className='card fase-section';
+  conclusiones.innerHTML=`
+    <h3>🎯 Conclusiones del Experimento</h3>
+    <div class="info">
+      Los resultados evidencian que <strong>BDMA proporciona beneficios tangibles</strong> en el diseño de arquitecturas de microservicios, 
+      especialmente en la comprensión del dominio, razonamiento sobre comportamiento y toma de decisiones arquitectónicas. 
+      El enfoque sistemático de 6 fases reduce la complejidad cognitiva y mejora la calidad perceptual del diseño, validando 
+      su aplicabilidad tanto en contextos académicos como su potencial para entornos profesionales.
+    </div>
+  `;
+  sec.appendChild(conclusiones);
+}
+
 /* ---------- Render all ---------- */
 function escapeHtml(s){ return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'\"'":'&#39;'}[m])); }
 function init(){
@@ -2200,7 +2449,28 @@ function init(){
   renderFase3();
   renderFase4();
   renderFase5();
+  renderExperimento();
   window.addEventListener('resize', ()=>{ if(document.getElementById('fase3').classList.contains('active')) drawEdges(); });
+}
+
+/* ---------- Auxiliary Functions ---------- */
+function createScenarioLinks(escenarios) {
+  if (!Array.isArray(escenarios)) return '';
+  return escenarios.map(escenario => {
+    // Verificar si el escenario existe en bddBlocks
+    const exists = bddBlocks.some(b => b.tag === `@${escenario}`);
+    if (exists) {
+      return `<span class="scenario-link" onclick="openScenarioModal('${escenario}')">${escenario}</span>`;
+    } else {
+      return `<span class="muted">${escenario}</span>`;
+    }
+  }).join(', ');
+}
+
+function createMultipleScenarioLinks(escenarioString) {
+  if (!escenarioString) return '';
+  const escenarios = escenarioString.split(/[,\s]+/).map(s => s.trim()).filter(s => s);
+  return createScenarioLinks(escenarios);
 }
 
 /* ---------- Modal Functions ---------- */
