@@ -98,6 +98,17 @@
   /* Separación entre secciones */
   .fase-section{margin-bottom:24px; padding-bottom:16px; border-bottom:1px solid var(--border)}
   .fase-section:last-child{border-bottom:none}
+
+  /* Modal para escenarios */
+  .modal-overlay{position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:none; z-index:1000; align-items:center; justify-content:center; padding:20px}
+  .modal-content{background:var(--bg); border:1px solid var(--border); border-radius:16px; max-width:800px; max-height:90vh; overflow:auto; padding:24px; position:relative}
+  .modal-header{display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; padding-bottom:12px; border-bottom:1px solid var(--border)}
+  .modal-title{margin:0; color:#f8fafc; font-size:18px}
+  .modal-close{background:none; border:none; color:#64748b; font-size:24px; cursor:pointer; padding:4px; border-radius:4px}
+  .modal-close:hover{background:var(--border); color:#f8fafc}
+  .modal-body{color:#e2e8f0}
+  .scenario-link{color:#3b82f6; cursor:pointer; text-decoration:underline}
+  .scenario-link:hover{color:#60a5fa}
 </style>
 </head>
 <body>
@@ -170,6 +181,23 @@
   <footer class="wrap">
     <small>BDMA – Sitio de soporte para evaluación. Versión de demostración estática.</small>
   </footer>
+
+  <!-- Modal para mostrar escenarios -->
+  <div id="scenarioModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalTitle">Escenario BDD</h3>
+        <button class="modal-close" onclick="closeScenarioModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="codebar">
+          <div id="modalTags"></div>
+          <button class="btn" onclick="copyModalContent()">Copiar</button>
+        </div>
+        <pre><code id="modalContent"></code></pre>
+      </div>
+    </div>
+  </div>
 
 <script>
 /* ---------- Data (curada a partir de la Iteración 1) ---------- */
@@ -874,11 +902,31 @@ function renderFase1(){
     }
   ];
 
+  // Función auxiliar para crear links de escenarios
+  function createScenarioLinks(escenarios) {
+    return escenarios.map(escenario => {
+      // Verificar si el escenario existe en bddBlocks
+      const exists = bddBlocks.some(b => b.tag === `@${escenario}`);
+      if (exists) {
+        return `<span class="scenario-link" onclick="openScenarioModal('${escenario}')">${escenario}</span>`;
+      } else {
+        return `<span class="muted">${escenario}</span>`;
+      }
+    }).join(', ');
+  }
+
+  // Función auxiliar para múltiples escenarios separados por coma o espacios
+  function createMultipleScenarioLinks(escenarioString) {
+    if (!escenarioString) return '';
+    const escenarios = escenarioString.split(/[,\s]+/).map(s => s.trim()).filter(s => s);
+    return createScenarioLinks(escenarios);
+  }
+
   mapaAgrupamiento.forEach(grupo=>{
     const tr=document.createElement('tr');
     tr.innerHTML=`
       <td><strong>${grupo.nombre}</strong></td>
-      <td>${grupo.escenarios.join(', ')}</td>
+      <td>${createScenarioLinks(grupo.escenarios)}</td>
       <td>${grupo.actor}</td>
       <td>${grupo.eventos.join(', ')}</td>
       <td class="muted">${grupo.notas}</td>
@@ -1038,7 +1086,7 @@ function renderFase2(){
     const tr=document.createElement('tr');
     tr.innerHTML=`
       <td><strong>${elem.grupo}</strong></td>
-      <td>${elem.escenario}</td>
+      <td><span class="scenario-link" onclick="openScenarioModal('${elem.escenario}')">${elem.escenario}</span></td>
       <td>${elem.actor}</td>
       <td><strong>${elem.comando}</strong></td>
       <td><em>${elem.evento}</em></td>
@@ -1713,7 +1761,7 @@ function renderFase4(){
       <td><code>${contrato.endpoint}</code></td>
       <td><span class="pill">${contrato.verbo}</span></td>
       <td>${contrato.comandoEvento}</td>
-      <td><em>${contrato.escenarioBDD}</em></td>
+      <td>${createMultipleScenarioLinks(contrato.escenarioBDD)}</td>
       <td class="muted">${contrato.observaciones}</td>
     `;
     tbody.appendChild(tr);
@@ -1941,7 +1989,7 @@ function renderFase5(){
   trazabilidadEstructurada.forEach(trace=>{
     const tr=document.createElement('tr'); 
     tr.innerHTML = `
-      <td><em>${trace.escenario}</em></td>
+      <td><span class="scenario-link" onclick="openScenarioModal('${trace.escenario}')">${trace.escenario}</span></td>
       <td><strong>${trace.boundedContext}</strong></td>
       <td><code>${trace.contratoAPI}</code></td>
       <td class="muted">${trace.servicio}</td>
@@ -2094,6 +2142,56 @@ function init(){
   renderFase5();
   window.addEventListener('resize', ()=>{ if(document.getElementById('fase3').classList.contains('active')) drawEdges(); });
 }
+
+/* ---------- Modal Functions ---------- */
+function openScenarioModal(scenarioId) {
+  const scenario = bddBlocks.find(b => b.tag === `@${scenarioId}`);
+  if (!scenario) {
+    console.warn(`Escenario no encontrado: ${scenarioId}`);
+    return;
+  }
+  
+  document.getElementById('modalTitle').textContent = `Escenario: ${scenarioId}`;
+  document.getElementById('modalTags').innerHTML = `<span class="tag">${scenario.feature}</span> <span class="tag">${scenario.tag}</span>`;
+  document.getElementById('modalContent').textContent = scenario.text;
+  document.getElementById('scenarioModal').style.display = 'flex';
+  
+  // Prevenir scroll del body
+  document.body.style.overflow = 'hidden';
+}
+
+function closeScenarioModal() {
+  document.getElementById('scenarioModal').style.display = 'none';
+  document.body.style.overflow = 'auto';
+}
+
+function copyModalContent() {
+  const content = document.getElementById('modalContent').textContent;
+  navigator.clipboard.writeText(content).then(() => {
+    // Feedback visual opcional
+    const btn = event.target;
+    const originalText = btn.textContent;
+    btn.textContent = 'Copiado!';
+    setTimeout(() => {
+      btn.textContent = originalText;
+    }, 1500);
+  });
+}
+
+// Cerrar modal al hacer click fuera del contenido
+document.addEventListener('click', (e) => {
+  if (e.target.classList.contains('modal-overlay')) {
+    closeScenarioModal();
+  }
+});
+
+// Cerrar modal con ESC
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    closeScenarioModal();
+  }
+});
+
 document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
