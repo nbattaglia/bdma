@@ -1362,10 +1362,20 @@ function renderFase3(){
 
   // Context Map Visual mejorado
   const contextMap=document.createElement('div'); contextMap.className='card fase-section';
-  contextMap.innerHTML='<h3>🗺️ Context Map Visual</h3><p class="muted">Representación gráfica de bounded contexts e interacciones:</p>';
+  contextMap.innerHTML=`
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+      <div>
+        <h3 style="margin: 0;">🗺️ Context Map Visual</h3>
+        <p class="muted" style="margin: 4px 0 0 0;">Representación gráfica de bounded contexts e interacciones</p>
+      </div>
+      <button class="btn" onclick="downloadContextMap()" style="background: #3b82f6; color: white;">
+        📥 Descargar PNG
+      </button>
+    </div>
+  `;
   
   const mapContainer=document.createElement('div');
-  mapContainer.style.cssText = 'position:relative; background:#0b1220; border:1px solid var(--border); border-radius:12px; padding:20px; min-height:600px; overflow:hidden;';
+  mapContainer.style.cssText = 'position:relative; background:#0b1220; border:1px solid var(--border); border-radius:12px; padding:20px; min-height:500px; overflow:hidden;';
   mapContainer.innerHTML = '<svg id="contextMapSvg" style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none;"></svg>';
   
   contextMap.appendChild(mapContainer);
@@ -1422,13 +1432,13 @@ function createContextMapSVG(mapaFormalBC, mapaInteracciones) {
   
   svg.innerHTML = '';
   
-  // Configuración del layout
+  // Configuración optimizada para contextos más pequeños
   const cols = 4;
-  const boxWidth = 160;
-  const boxHeight = 120;
-  const marginX = 20;
-  const marginY = 20;
-  const spacing = 30;
+  const boxWidth = 140;  // Reducido de 160 a 140
+  const boxHeight = 80;  // Reducido de 120 a 80
+  const marginX = 15;
+  const marginY = 15;
+  const spacing = 25;    // Reducido de 30 a 25
   
   // Crear los nodos de bounded contexts
   const nodes = [];
@@ -1442,44 +1452,79 @@ function createContextMapSVG(mapaFormalBC, mapaInteracciones) {
     const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     group.setAttribute('transform', `translate(${x}, ${y})`);
     
-    // Fondo del contexto
+    // Fondo del contexto con gradiente sutil
     const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
     rect.setAttribute('width', boxWidth);
     rect.setAttribute('height', boxHeight);
-    rect.setAttribute('rx', '8');
+    rect.setAttribute('rx', '6');
     rect.setAttribute('fill', '#1e293b');
     rect.setAttribute('stroke', '#64748b');
     rect.setAttribute('stroke-width', '1');
     
-    // Nombre del contexto
+    // Nombre del contexto (más compacto)
     const title = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     title.setAttribute('x', boxWidth / 2);
-    title.setAttribute('y', 20);
+    title.setAttribute('y', 16);
     title.setAttribute('text-anchor', 'middle');
     title.setAttribute('fill', '#f8fafc');
-    title.setAttribute('font-size', '12');
+    title.setAttribute('font-size', '10');
     title.setAttribute('font-weight', 'bold');
-    title.textContent = ctx.nombre;
     
-    // Información adicional
+    // Dividir nombre largo en dos líneas si es necesario
+    const nombre = ctx.nombre;
+    if (nombre.length > 15) {
+      const palabras = nombre.split(' ');
+      if (palabras.length > 1) {
+        title.textContent = palabras[0];
+        const secondLine = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        secondLine.setAttribute('x', boxWidth / 2);
+        secondLine.setAttribute('y', 28);
+        secondLine.setAttribute('text-anchor', 'middle');
+        secondLine.setAttribute('fill', '#f8fafc');
+        secondLine.setAttribute('font-size', '10');
+        secondLine.setAttribute('font-weight', 'bold');
+        secondLine.textContent = palabras.slice(1).join(' ');
+        group.appendChild(title);
+        group.appendChild(secondLine);
+      } else {
+        title.textContent = nombre;
+        group.appendChild(title);
+      }
+    } else {
+      title.textContent = nombre;
+      group.appendChild(title);
+    }
+    
+    // Información compacta
     const info = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    info.setAttribute('x', 8);
-    info.setAttribute('y', 40);
+    info.setAttribute('x', 6);
+    info.setAttribute('y', boxHeight - 20);
     info.setAttribute('fill', '#94a3b8');
-    info.setAttribute('font-size', '9');
-    info.textContent = `${ctx.comandos.length} cmd, ${ctx.eventos.length} evt`;
+    info.setAttribute('font-size', '8');
+    info.textContent = `${ctx.comandos.length} cmd`;
     
-    const api = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    api.setAttribute('x', 8);
-    api.setAttribute('y', 55);
-    api.setAttribute('fill', ctx.requiereAPI === 'Sí' ? '#10b981' : '#6b7280');
-    api.setAttribute('font-size', '9');
-    api.textContent = ctx.requiereAPI === 'Sí' ? '🔗 API' : '🔒 Internal';
+    const info2 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    info2.setAttribute('x', 6);
+    info2.setAttribute('y', boxHeight - 10);
+    info2.setAttribute('fill', '#94a3b8');
+    info2.setAttribute('font-size', '8');
+    info2.textContent = `${ctx.eventos.length} evt`;
+    
+    // Indicador API
+    if (ctx.requiereAPI === 'Sí') {
+      const apiIcon = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      apiIcon.setAttribute('cx', boxWidth - 10);
+      apiIcon.setAttribute('cy', boxHeight - 15);
+      apiIcon.setAttribute('r', '4');
+      apiIcon.setAttribute('fill', '#10b981');
+      apiIcon.setAttribute('stroke', '#064e3b');
+      apiIcon.setAttribute('stroke-width', '1');
+      group.appendChild(apiIcon);
+    }
     
     group.appendChild(rect);
-    group.appendChild(title);
     group.appendChild(info);
-    group.appendChild(api);
+    group.appendChild(info2);
     svg.appendChild(group);
     
     nodes.push({
@@ -1491,13 +1536,13 @@ function createContextMapSVG(mapaFormalBC, mapaInteracciones) {
     });
   });
   
-  // Crear las conexiones
-  mapaInteracciones.forEach(rel => {
+  // Crear las conexiones con mejor algoritmo de ruteo
+  mapaInteracciones.forEach((rel, index) => {
     const origen = nodes.find(n => n.id === rel.origen);
     const destino = nodes.find(n => n.id === rel.destino);
     
     if (origen && destino) {
-      // Calcular puntos de conexión
+      // Calcular puntos de conexión optimizados
       const dx = destino.x - origen.x;
       const dy = destino.y - origen.y;
       const dist = Math.sqrt(dx * dx + dy * dy);
@@ -1506,68 +1551,83 @@ function createContextMapSVG(mapaFormalBC, mapaInteracciones) {
         const normX = dx / dist;
         const normY = dy / dist;
         
-        const startX = origen.x + normX * (origen.width / 2);
-        const startY = origen.y + normY * (origen.height / 2);
-        const endX = destino.x - normX * (destino.width / 2);
-        const endY = destino.y - normY * (destino.height / 2);
+        // Puntos de conexión en los bordes de las cajas
+        const startX = origen.x + normX * (origen.width / 2.2);
+        const startY = origen.y + normY * (origen.height / 2.2);
+        const endX = destino.x - normX * (destino.width / 2.2);
+        const endY = destino.y - normY * (destino.height / 2.2);
         
-        // Línea de conexión
-        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        line.setAttribute('x1', startX);
-        line.setAttribute('y1', startY);
-        line.setAttribute('x2', endX);
-        line.setAttribute('y2', endY);
-        line.setAttribute('stroke', '#3b82f6');
-        line.setAttribute('stroke-width', '2');
-        line.setAttribute('stroke-dasharray', rel.tipo.includes('Event') ? '5,5' : '0');
-        line.setAttribute('opacity', '0.7');
+        // Crear path curvado para evitar solapamientos
+        const midX = (startX + endX) / 2;
+        const midY = (startY + endY) / 2;
         
-        // Flecha
-        const arrowId = `arrow-${rel.origen.replace(/[^a-zA-Z0-9]/g, '')}-${rel.destino.replace(/[^a-zA-Z0-9]/g, '')}`;
+        // Offset para curvar la línea y evitar solapamientos
+        const perpX = -normY * (20 + index * 8);
+        const perpY = normX * (20 + index * 8);
+        const controlX = midX + perpX;
+        const controlY = midY + perpY;
+        
+        // Crear path curvado
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        const pathData = `M ${startX} ${startY} Q ${controlX} ${controlY} ${endX} ${endY}`;
+        path.setAttribute('d', pathData);
+        path.setAttribute('stroke', '#3b82f6');
+        path.setAttribute('stroke-width', '2');
+        path.setAttribute('fill', 'none');
+        path.setAttribute('opacity', '0.8');
+        
+        // Estilo según tipo de relación
+        if (rel.tipo.includes('Event')) {
+          path.setAttribute('stroke-dasharray', '5,3');
+        }
+        
+        // Flecha optimizada
+        const arrowId = `arrow-${index}`;
         const defs = svg.querySelector('defs') || document.createElementNS('http://www.w3.org/2000/svg', 'defs');
         if (!svg.querySelector('defs')) svg.appendChild(defs);
         
         const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
         marker.setAttribute('id', arrowId);
-        marker.setAttribute('markerWidth', '10');
-        marker.setAttribute('markerHeight', '10');
-        marker.setAttribute('refX', '9');
-        marker.setAttribute('refY', '3');
+        marker.setAttribute('markerWidth', '8');
+        marker.setAttribute('markerHeight', '8');
+        marker.setAttribute('refX', '7');
+        marker.setAttribute('refY', '2.5');
         marker.setAttribute('orient', 'auto');
         
-        const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-        polygon.setAttribute('points', '0,0 0,6 9,3');
-        polygon.setAttribute('fill', '#3b82f6');
-        marker.appendChild(polygon);
+        const triangle = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+        triangle.setAttribute('points', '0,0 0,5 7,2.5');
+        triangle.setAttribute('fill', '#3b82f6');
+        marker.appendChild(triangle);
         defs.appendChild(marker);
         
-        line.setAttribute('marker-end', `url(#${arrowId})`);
+        path.setAttribute('marker-end', `url(#${arrowId})`);
         
-        // Etiqueta de tipo de relación
-        const midX = (startX + endX) / 2;
-        const midY = (startY + endY) / 2;
+        // Etiqueta compacta
+        const labelX = controlX;
+        const labelY = controlY - 8;
         
-        const bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-        bg.setAttribute('x', midX - 35);
-        bg.setAttribute('y', midY - 15);
-        bg.setAttribute('width', 70);
-        bg.setAttribute('height', 12);
-        bg.setAttribute('fill', '#0b1220');
-        bg.setAttribute('stroke', '#3b82f6');
-        bg.setAttribute('stroke-width', '1');
-        bg.setAttribute('rx', '3');
+        const labelBg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        labelBg.setAttribute('x', labelX - 25);
+        labelBg.setAttribute('y', labelY - 8);
+        labelBg.setAttribute('width', 50);
+        labelBg.setAttribute('height', 12);
+        labelBg.setAttribute('fill', '#0b1220');
+        labelBg.setAttribute('stroke', '#3b82f6');
+        labelBg.setAttribute('stroke-width', '1');
+        labelBg.setAttribute('rx', '2');
+        labelBg.setAttribute('opacity', '0.9');
         
         const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        label.setAttribute('x', midX);
-        label.setAttribute('y', midY - 5);
+        label.setAttribute('x', labelX);
+        label.setAttribute('y', labelY);
         label.setAttribute('text-anchor', 'middle');
         label.setAttribute('fill', '#3b82f6');
-        label.setAttribute('font-size', '8');
+        label.setAttribute('font-size', '7');
         label.setAttribute('font-weight', 'bold');
-        label.textContent = rel.tipo;
+        label.textContent = rel.tipo.split(' ')[0]; // Solo primera palabra
         
-        svg.appendChild(line);
-        svg.appendChild(bg);
+        svg.appendChild(path);
+        svg.appendChild(labelBg);
         svg.appendChild(label);
       }
     }
@@ -1578,7 +1638,7 @@ function createContextMapSVG(mapaFormalBC, mapaInteracciones) {
   const maxY = Math.max(...nodes.map(n => n.y + n.height / 2)) + marginY;
   svg.setAttribute('viewBox', `0 0 ${maxX} ${maxY}`);
   svg.setAttribute('width', '100%');
-  svg.setAttribute('height', maxY + 'px');
+  svg.setAttribute('height', Math.min(maxY + 40, 400) + 'px'); // Altura máxima limitada
 }
 
 function drawEdges(){
@@ -2191,6 +2251,74 @@ document.addEventListener('keydown', (e) => {
     closeScenarioModal();
   }
 });
+
+/* ---------- Context Map Download Function ---------- */
+function downloadContextMap() {
+  const svg = document.getElementById('contextMapSvg');
+  if (!svg) {
+    alert('Context Map no encontrado');
+    return;
+  }
+
+  // Clonar el SVG para procesarlo sin afectar el original
+  const svgClone = svg.cloneNode(true);
+  
+  // Obtener las dimensiones del viewBox
+  const viewBox = svg.getAttribute('viewBox');
+  const [minX, minY, width, height] = viewBox.split(' ').map(Number);
+  
+  // Crear canvas con alta resolución
+  const scale = 2; // Factor de escala para mejor calidad
+  const canvas = document.createElement('canvas');
+  canvas.width = width * scale;
+  canvas.height = height * scale;
+  const ctx = canvas.getContext('2d');
+  
+  // Fondo blanco para la imagen
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  // Configurar el SVG clonado para la exportación
+  svgClone.setAttribute('width', width);
+  svgClone.setAttribute('height', height);
+  svgClone.style.background = '#0b1220';
+  
+  // Convertir SVG a data URL
+  const svgData = new XMLSerializer().serializeToString(svgClone);
+  const svgBlob = new Blob([svgData], {type: 'image/svg+xml;charset=utf-8'});
+  const svgUrl = URL.createObjectURL(svgBlob);
+  
+  // Crear imagen y dibujar en canvas
+  const img = new Image();
+  img.onload = function() {
+    // Escalar y dibujar
+    ctx.drawImage(img, 0, 0, width * scale, height * scale);
+    
+    // Descargar como PNG
+    canvas.toBlob(function(blob) {
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.download = 'bdma-context-map.png';
+      link.href = url;
+      link.click();
+      
+      // Limpiar URLs
+      URL.revokeObjectURL(url);
+      URL.revokeObjectURL(svgUrl);
+    }, 'image/png');
+  };
+  
+  img.onerror = function() {
+    // Fallback: descargar SVG directamente
+    const link = document.createElement('a');
+    link.download = 'bdma-context-map.svg';
+    link.href = svgUrl;
+    link.click();
+    URL.revokeObjectURL(svgUrl);
+  };
+  
+  img.src = svgUrl;
+}
 
 document.addEventListener('DOMContentLoaded', init);
 </script>
