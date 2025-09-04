@@ -2176,13 +2176,12 @@ function renderFase5(){
 
 function renderExperimento(){
   const sec=document.getElementById('experimento'); 
-  console.log('Renderizando experimento, elemento encontrado:', sec);
   sec.innerHTML='';
   
   // Título y descripción
   const descripcion=document.createElement('div'); descripcion.className='card fase-section';
   descripcion.innerHTML=`
-    <h3>Validación Experimental de BDMA</h3>
+    <h3>🧪 Validación Experimental de BDMA</h3>
     <p class="muted"><strong>Estudio:</strong> Validación preliminar en entorno académico controlado con 28 participantes del curso de Diseño y Arquitectura de Software (Posgrado) - Universidad Abierta Interamericana.</p>
     <div class="kpi">
       <span class="pill">28 participantes</span>
@@ -2192,7 +2191,6 @@ function renderExperimento(){
     </div>
   `;
   sec.appendChild(descripcion);
-  console.log('Descripción agregada, contenido de sec:', sec.innerHTML.length);
 
   // Objetivo e hipótesis
   const grid1=document.createElement('div'); grid1.className='grid fase-section';
@@ -2435,6 +2433,7 @@ function renderExperimento(){
     </div>
   `;
   sec.appendChild(conclusiones);
+}
 }
 
 /* ---------- Render all ---------- */
